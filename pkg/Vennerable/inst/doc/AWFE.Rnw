@@ -10,10 +10,10 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	detach("package:Vennerable")
+	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
-	setwd("C:/JonathanSwinton/Vennerable/inst/doc")
-	Sweave(driver="weaver","AWFE.Rnw",stylepath=FALSE,use.cache=TRUE)
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
+	Sweave(driver="weaver","AWFE.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
 @
@@ -27,7 +27,7 @@ Edwards-Venn diagrams
 }
 \author{Jonathan Swinton}
 
-\SweaveOpts{prefix.string=Vennfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=figdir/AWFEfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{float}
 \usepackage{natbib}
 \usepackage{mathptmx}
@@ -104,13 +104,6 @@ SetBoundaries[["cog"]] <- makeAWFESets(9,hmax=.6,type="cog")
 SetBoundaries[["battle"]] <- makeAWFESets(9,type="battle")
 @
 
-<<awefebuilderdef,cache=TRUE,eval=TRUE>>=
-
-<<awefebuilder,cache=TRUE,eval=FALSE>>=
-saveTD("battle",Setlist =SetBoundaries[["battle"]],dataFile=dataFile)
-saveTD(type="AWFEscale",Setlist =SetBoundaries[["AWFEscale"]],dataFile=dataFile)
-saveTD("AWFE",Setlist =SetBoundaries[["AWFE"]][1:8],dataFile=dataFile)
-@
 
 
 \begin{figure}[H]\begin{center}
@@ -156,7 +149,7 @@ how many sets we need, we can try rescaling so the amplitudes decreases linearly
 These sets are shown in Figure~\ref{fig:AWFEscale}.
 
 \begin{figure}[H]\begin{center}
-<<s2builder,cache=TRUE>>=
+<<s2builder,fig=TRUE,cache=TRUE>>=
 plotSsets(SetBoundaries[["AWFEscale"]])
 @
 \caption{AWFE sets based on rescaled Smith functions}
@@ -168,7 +161,7 @@ plotSsets(SetBoundaries[["AWFEscale"]])
 \subsection{Cog sets}
 Alternatively we could replace each sine curve by a toothed cog
 \begin{figure}[H]\begin{center}
-<<scogbuilder,cache=TRUE>>=
+<<scogbuilder,fig=TRUE>>=
 plotSsets(SetBoundaries[["cog"]])
 
 @
