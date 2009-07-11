@@ -1,9 +1,8 @@
 <<eval=FALSE,echo=FALSE>>=
 makeme <- function() {
-	setwd("C:\\Documents and Settings\\jon\\My Documents\\my Jon\\Vennerable\\inst\\doc")
-#	setwd("C:/JonathanSwinton/PathwayModeling/src/R")
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	library(weaver);
-	Sweave(driver=weaver,"Euler3Sets.Rnw",stylepath=FALSE,use.cache=TRUE)
+	Sweave(driver=weaver,"Euler3Sets.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
 @
