@@ -1,14 +1,13 @@
 %**************************************************************************
 %
-% # $Id: Vennville.Rnw,v 1.7 2007/10/16 10:59:52 js229 Exp $
+% # $Id$
 %\VignetteIndexEntry{Obsolete}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-#	detach("package:Vennerable")
+	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
-	#setwd("C:/JonathanSwinton/PathwayModeling/src/R/SourcePackages/Vennerable/inst/doc")
-	setwd("C:/JonathanSwinton/Vennerable\\inst\\doc")
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	Sweave(driver="weaver","Vennville.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
@@ -27,7 +26,7 @@ regression checks
 \author{Jonathan Swinton}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=Vennvillefig,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=figdir/Vennville,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{natbib}
 \usepackage{mathptmx}
 \usepackage{rotating} 
@@ -1307,7 +1306,7 @@ $W=w_{101}+w_{011}+w_{011}+w_{111}=1-(w_{100}+w_{010}+w_{001})$.
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id: Vennville.Rnw,v 1.7 2007/10/16 10:59:52 js229 Exp ${}$.
+CVS id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\

@@ -1,42 +1,23 @@
 %**************************************************************************
 %
-% # $Id: Vennville.Rnw,v 1.7 2007/10/16 10:59:52 js229 Exp $
+% # $Id$
 %\VignetteIndexEntry{Details of the VennDrawing object for the developer only}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-#	detach("package:Vennerable")
+	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
-	#setwd("C:/JonathanSwinton/PathwayModeling/src/R/SourcePackages/Vennerable/inst/doc")
-	setwd("C:/JonathanSwinton/Vennerable\\inst\\doc")
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	Sweave(driver="weaver","VennDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
 @
 
 % $Revision: 1.7 $
-% $Author: js229 $
-% $Date: 2007/10/16 10:59:52 $
+% $Author$
+% $Date$
 %
 % $Log: Vennville.Rnw,v $
-% Revision 1.7  2007/10/16 10:59:52  js229
-% Compiles properly again
-%
-% Revision 1.6  2007/06/19 21:53:47  js229
-% clean build
-%
-% Revision 1.5  2007/04/23 22:10:14  js229
-% Text changes
-%
-% Revision 1.4  2007/04/09 08:31:53  js229
-% off to cambridge
-%
-% Revision 1.3  2007/03/26 21:55:30  js229
-% mindstream
-%
-% Revision 1.2  2007/03/26 20:16:49  js229
-% no message
-%
 
 \documentclass[a4paper]{article}
 
@@ -50,7 +31,7 @@ regression checks
 \author{Jonathan Swinton}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=Vennvillefig,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=figdir/VDT,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{natbib}
 \usepackage{mathptmx}
 \usepackage{rotating} 
@@ -100,21 +81,7 @@ options(width=45)
 \section{Venn objects}
 
 <<defcombo,echo=TRUE>>=
-#library(Vennerable)
-source("../../R/00Venn.R")
-source("../../R/02TissueDrawing.R")
-source("../../R/03VennDrawing.R")
-source("../../R/Circles.R")
-source("../../R/ThreeSquares.R")
-source("../../R/Triangles.R")
-source("../../R/FourEllipses.R")
-source("../../R/AWFE.R")
-source("../../R/ChowRuskey.R")
-
-
-library(grid)
-library(lattice) 
-library(RColorBrewer)
+library(Vennerable)
 
 Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
 	Weight= c(0,4148,409,604,543,67,183,146)
@@ -204,7 +171,7 @@ PlotNodes(VD2)
  pushViewport(viewport(layout=grid.layout(2,1)))
 	pushViewport(viewport(layout.pos.row=1))
 
- PlotVennGeometry(C2,show=(list(intersection.weight=FALSE)))
+ PlotVennGeometry(C2,show=(list(FaceText="")))
  downViewport(name="Vennvp")
  grid.xaxis()
  grid.yaxis()
@@ -229,7 +196,7 @@ Cr <- c(0.8,0.4)
  d2 <- d - d1
  y <- (1/(2*d))* sqrt(4*d^2*r[1]^2-(d^2-r[2]^2+r[1]^2)^2)
 
- PlotVennGeometry(C2,show=(list(intersection.weight=FALSE)))
+ PlotVennGeometry(C2,show=(list(FaceText="")))
  downViewport(name="Vennvp")
  grid.xaxis()
  grid.yaxis()
@@ -335,7 +302,7 @@ grid.newpage()
 PlotVennGeometry(C2.big)
 Areas(C2.big)
 checkAreas(C2.big)
-plot.Venn(V2.big)
+plot(V2.big)
 @
 \caption{Weighted 2d Venn}
 \label{fig:pv2b2}
@@ -433,7 +400,7 @@ C2 <- compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
 \section{Two squares}
 \begin{figure}[H]\begin{center}
 <<sqpv2b,fig=TRUE>>=
-plot.Venn(V=V2,type="squares")
+plot(V2,type="squares")
 @
 \end{center}\end{figure}
 
@@ -542,7 +509,7 @@ an area-proportional drawing under some contrainsts on the weights
 <<plotT3,echo=FALSE,fig=TRUE>>=
 T3a <- compute.T3(V3a)
 grid.newpage()
-PlotVennGeometry(T3a ,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+PlotVennGeometry(T3a ,show=list(FaceText="signature"))
 downViewport("Vennvp")
 #PlotNodes(T3a )
 checkAreas(T3a )
@@ -633,7 +600,7 @@ this has two real solutions between $w_a$ and $1-w_b$.
 <<tv3,fig=TRUE>>=
 T3 <- compute.T3(Vempty,doWeights=FALSE)
 grid.newpage()
-PlotVennGeometry(T3,show=list(intersection.weight=FALSE,indicator.string=TRUE))
+PlotVennGeometry(T3,show=list(FaceText="",indicator.string=TRUE))
 @
 
 
@@ -667,7 +634,7 @@ TODO likesquares
 <<S3ccpdemo,fig=TRUE>>=
 S3a <- compute.S3(V3a,doWeights=TRUE)
 grid.newpage()
-PlotVennGeometry(S3a,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+PlotVennGeometry(S3a,show=list(indicator.string=TRUE,FaceText=""))
 downViewport("Vennvp")
 PlotNodes(S3a)
 checkAreas(S3a)
@@ -763,7 +730,7 @@ DOES NOT WORK
 <<doe4,fig=TRUE,eval=FALSE>>=
 E4 <- compute.Venn(V4,type="ellipses")
 grid.newpage()
-PlotVennGeometry(E4,show=list(SetLabels=FALSE,intersection.weight=FALSE))
+PlotVennGeometry(E4,show=list(SetLabels=FALSE,FaceText=""))
 downViewport("Vennvp")
 PlotNodes(E4)
 @
@@ -797,7 +764,7 @@ plot.gridrays  <- function(nSets,radius=3) {
 
 sho4 <- function(CR4) {
 	grid.newpage()
-	PlotVennGeometry(CR4 ,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+	PlotVennGeometry(CR4 ,show=list(indicator.string=TRUE,FaceText=""))
 	downViewport("Vennvp")
 	plot.grideqsc(-4:4)
 	plot.gridrays(NumberOfSets(CR4),radius=5)
@@ -818,7 +785,7 @@ the weight of the common intersection is nonzero.
 <<plotCR3,echo=FALSE,fig=TRUE>>=
 CR3a <- compute.CR(V3a)
 grid.newpage()
-PlotVennGeometry(CR3a ,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+PlotVennGeometry(CR3a ,show=list(indicator.string=TRUE,FaceText=""))
 downViewport("Vennvp")
 #PlotNodes(T3a )
 checkAreas(CR3a )
@@ -856,12 +823,12 @@ V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
 <<plotCR4,echo=FALSE,fig=TRUE>>=
 CR4a <-  compute.CR(V4a)
 grid.newpage()
-PlotVennGeometry(CR4a ,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+PlotVennGeometry(CR4a ,show=list(indicator.string=TRUE,FaceText=""))
 downViewport("Vennvp")
 #PlotNodes(CR4a )
 checkAreas(CR4a )
 # TODO this fails 1011 and 0111
-plot.Venn(V4a,type="ChowRuskey")
+plot(V4a,type="ChowRuskey")
 @
 \caption{Chow-Ruskey weighted 4-set diagram}
 \end{center}
@@ -895,7 +862,7 @@ grid.text(x=inr *cos(-7*angleray),y=inr *sin(-7*angleray),label="r[n]",default.u
 grid.text(x=outr *cos(-angleray),y=outr *sin(-angleray),label="s3",default.units="native")
 grid.text(x=3*cos(-angleray),y=3*sin(-angleray),label="delta",default.units="native")
 
-#PlotVennGeometry(CR4w ,show=list(indicator.string=TRUE,intersection.weight=FALSE))
+#PlotVennGeometry(CR4w ,show=list(indicator.string=TRUE,FaceText=""))
 #downViewport("Vennvp")
 #PlotNodes(CR4a )
 @
@@ -941,7 +908,7 @@ If all the $r$s are the same then $c_b=[2(n-3)+4]r=(2n-2)r$.
 <<CR4fig,fig=TRUE>>=
 CK4 <- compute.CR(V4)
 grid.newpage()
-PlotVennGeometry(CK4,show=list(SetLabels=FALSE,intersection.weight=TRUE))
+PlotVennGeometry(CK4,show=list(FaceText="weight",SetLabels=FALSE))
 checkAreas(CK4)
 @
 \end{center}\end{figure}
@@ -950,7 +917,7 @@ checkAreas(CK4)
 <<CR4ffig,fig=TRUE>>=
 CK4f <- compute.CR(V4f)
 grid.newpage()
-PlotVennGeometry(CK4f,show=list(SetLabels=FALSE,intersection.weight=TRUE))
+PlotVennGeometry(CK4f,show=list(FaceText="weight",SetLabels=FALSE))
 @
 \end{center}\end{figure}
 
@@ -1037,7 +1004,7 @@ There are about 40 distinct ways in which patterns of zero intersections can occ
 \begin{figure}[H]
   \begin{center}
 <<pv2b,fig=TRUE>>=
-plot.Venn(V3.big,doWeights=TRUE)
+plot(V3.big,doWeights=TRUE)
 @
 \caption{TODO Big weighted 3d Venn fails}
 \end{center}\end{figure}
@@ -1054,7 +1021,7 @@ Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
 <<CR4fig,fig=TRUE>>=
 CK4 <- compute.CR(V4)
 grid.newpage()
-PlotVennGeometry(CK4,show=list(SetLabels=FALSE,intersection.weight=TRUE))
+PlotVennGeometry(CK4,show=list(FaceText="weight",SetLabels=FALSE))
 Areas(CK4)
 @
 \end{center}\end{figure}
@@ -1063,7 +1030,7 @@ Areas(CK4)
 <<CR4ffig,fig=TRUE>>=
 CK4f <- compute.CR(V4f)
 grid.newpage()
-PlotVennGeometry(CK4f,show=list(SetLabels=FALSE,intersection.weight=TRUE))
+PlotVennGeometry(CK4f,show=list(FaceText="weight",SetLabels=FALSE))
 @
 \end{center}\end{figure}
 %########################################################
@@ -1080,7 +1047,7 @@ print(try(V3[1,]))
 
 Requesting a 2D plot for a 3D set produces a warning.
 <<pv3b2>>=
-try(plot.Venn(V3.big))
+try(plot(V3.big))
 @
 
 Empty objects work
@@ -1088,7 +1055,7 @@ Empty objects work
 V0 = Venn()
 weights(V0)
 weights(V0)
-SetNames(V0)
+VennSetNames(V0)
 @
 
 
@@ -1099,7 +1066,7 @@ SetNames(V0)
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id: Vennville.Rnw,v 1.7 2007/10/16 10:59:52 js229 Exp ${}$.
+SVN id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\

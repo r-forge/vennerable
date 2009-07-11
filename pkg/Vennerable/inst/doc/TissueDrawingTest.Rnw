@@ -1,21 +1,21 @@
 %**************************************************************************
 %
-% # $Id: Vennville.Rnw,v 1.6 2007/06/19 21:53:47 js229 Exp $
+% # $Id$
 %\VignetteIndexEntry{Details of the TissueDrawing object for internal use only}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
 	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
-	setwd("C:/JonathanSwinton/Vennerable\\inst\\doc")
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
 @
 
 % $Revision: 1.6 $
-% $Author: js229 $
-% $Date: 2007/06/19 21:53:47 $
+% $Author$
+% $Date$
 %
 % $Log: Vennville.Rnw,v $
 
@@ -31,7 +31,7 @@ regression checks
 \author{Jonathan Swinton}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=Venndrawnfig,cache=TRUE,debug=TRUE,eps=FALSE,echo=TRUE,pdf.version=1.4}
+\SweaveOpts{prefix.string=figdir/TDT,cache=TRUE,debug=TRUE,eps=FALSE,echo=TRUE,pdf.version=1.4}
 \usepackage{natbib}
 \usepackage{mathptmx}
 \usepackage{rotating} 
@@ -508,7 +508,7 @@ PlotNodes(TMR )
 
 @
  \end{center}\end{figure}
-##################
+%##################
 \section{addSetToDrawing  a polygon and a circle}
 
 <<ipcsect>>=
@@ -1173,7 +1173,7 @@ PlotNodes(TM)
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id: Vennville.Rnw,v 1.6 2007/06/19 21:53:47 js229 Exp ${}$.
+CVS id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\

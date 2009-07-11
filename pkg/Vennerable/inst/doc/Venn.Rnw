@@ -1,6 +1,6 @@
 %**************************************************************************
 %
-% # $Id: Venn.Rnw,v 1.26 2007/10/16 10:59:52 js229 Exp $
+% # $Id$
 %\VignetteIndexEntry{Read this first: package overview}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
@@ -14,8 +14,8 @@ makeme()
 @
 
 % $Revision: 1.26 $
-% $Author: js229 $
-% $Date: 2007/10/16 10:59:52 $
+% $Author$
+% $Date$
 % $Log: Venn.Rnw,v $
 
 \documentclass[a4paper]{article}
@@ -930,7 +930,7 @@ showe <- list(FaceText="elements",Faces=TRUE)
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id: Venn.Rnw,v 1.26 2007/10/16 10:59:52 js229 Exp ${}$.
+CVS id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\

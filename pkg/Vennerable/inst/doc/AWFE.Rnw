@@ -5,7 +5,7 @@
 
 %**************************************************************************
 %
-% # $Id: AWFE.Rnw,v 1.4 2007/06/19 21:53:47 js229 Exp $
+% # $Id$
 %\VignetteIndexEntry{Details of the Edwards construction}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
