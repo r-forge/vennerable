@@ -69,7 +69,7 @@ VennFromSets <- function(setList) {
 
 setMethod("show","Venn",function(object){
 	cat(sprintf("A Venn object on %d sets named\n",NumberOfSets(object)))
-	cat(paste(SetNames(object),collapse=","),"\n")
+	cat(paste(VennSetNames(object),collapse=","),"\n")
 	show(Weights(object))
 })
 
