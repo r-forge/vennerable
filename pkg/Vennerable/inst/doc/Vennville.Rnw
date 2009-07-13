@@ -26,7 +26,7 @@ regression checks
 \author{Jonathan Swinton}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=figdir/Vennville,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=Vennville,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{natbib}
 \usepackage{mathptmx}
 \usepackage{rotating} 

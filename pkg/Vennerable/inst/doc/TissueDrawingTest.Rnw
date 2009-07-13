@@ -31,7 +31,7 @@ regression checks
 \author{Jonathan Swinton}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=figdir/TDT,cache=TRUE,debug=TRUE,eps=FALSE,echo=TRUE,pdf.version=1.4}
+\SweaveOpts{prefix.string=TDT,cache=TRUE,debug=TRUE,eps=FALSE,echo=TRUE,pdf.version=1.4}
 \usepackage{natbib}
 \usepackage{mathptmx}
 \usepackage{rotating} 

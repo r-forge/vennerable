@@ -27,7 +27,7 @@ Edwards-Venn diagrams
 }
 \author{Jonathan Swinton}
 
-\SweaveOpts{prefix.string=figdir/AWFEfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=AWFEfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{float}
 \usepackage{natbib}
 \usepackage{mathptmx}
