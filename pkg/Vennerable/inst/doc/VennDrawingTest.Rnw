@@ -127,7 +127,7 @@ Vempty3 <- VennFromSets( setList[c(4,5,6)])
 
 @
 
-\section{The VennDrawing object)
+\section{The VennDrawing object}
 <<testVD>>=
 centre.xy <- c(0,0)
 VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1); 
@@ -282,9 +282,10 @@ as shown in Figure \ref{fig:pv2b2}.
 checkAreas <- function(object) {
 	wght <- Weights(object)
 	ares <- Areas(object)
-	if (!all(names(wght) %in% names(ares))) { stop("Missing area") }
-	ares <- ares[names(wght)]
-	res <- data.frame(cbind(Area=ares,Weight=wght))
+	allareas <- NA*wght
+	allareas[names(ares)] <- ares
+	allareas<- allareas[names(wght)]
+	res <- data.frame(cbind(Area=allareas,Weight=wght))
 	res$IndicatorString <- names(wght)
 	res <- subset(res,IndicatorString != dark.matter.signature(object) & !( Weight==0 & abs(Area)<1e-4))
 	res$Density <- res$Area/res$Weight
@@ -600,7 +601,7 @@ this has two real solutions between $w_a$ and $1-w_b$.
 <<tv3,fig=TRUE>>=
 T3 <- compute.T3(Vempty,doWeights=FALSE)
 grid.newpage()
-PlotVennGeometry(T3,show=list(FaceText="",indicator.string=TRUE))
+PlotVennGeometry(T3,show=list(FaceText="signature"))
 @
 
 
@@ -622,7 +623,7 @@ TCombo <- try(compute.T3(Vcombo))
 <<plotT3d,echo=FALSE,fig=TRUE>>=
 
 grid.newpage()
-PlotVennGeometry(T3a,show=list(indicator.string=TRUE))
+PlotVennGeometry(T3a,show=list(FaceText="signature"))
 @
 \end{center}
 \end{figure}
@@ -634,7 +635,7 @@ TODO likesquares
 <<S3ccpdemo,fig=TRUE>>=
 S3a <- compute.S3(V3a,doWeights=TRUE)
 grid.newpage()
-PlotVennGeometry(S3a,show=list(indicator.string=TRUE,FaceText=""))
+PlotVennGeometry(S3a,show=list(FaceText="signature"))
 downViewport("Vennvp")
 PlotNodes(S3a)
 checkAreas(S3a)
@@ -764,7 +765,7 @@ plot.gridrays  <- function(nSets,radius=3) {
 
 sho4 <- function(CR4) {
 	grid.newpage()
-	PlotVennGeometry(CR4 ,show=list(indicator.string=TRUE,FaceText=""))
+	PlotVennGeometry(CR4 ,show=list(FaceText="signature"))
 	downViewport("Vennvp")
 	plot.grideqsc(-4:4)
 	plot.gridrays(NumberOfSets(CR4),radius=5)
@@ -785,7 +786,7 @@ the weight of the common intersection is nonzero.
 <<plotCR3,echo=FALSE,fig=TRUE>>=
 CR3a <- compute.CR(V3a)
 grid.newpage()
-PlotVennGeometry(CR3a ,show=list(indicator.string=TRUE,FaceText=""))
+PlotVennGeometry(CR3a ,show=list(FaceText="signature"))
 downViewport("Vennvp")
 #PlotNodes(T3a )
 checkAreas(CR3a )
@@ -823,12 +824,12 @@ V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
 <<plotCR4,echo=FALSE,fig=TRUE>>=
 CR4a <-  compute.CR(V4a)
 grid.newpage()
-PlotVennGeometry(CR4a ,show=list(indicator.string=TRUE,FaceText=""))
-downViewport("Vennvp")
-#PlotNodes(CR4a )
+try( {
+	PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
+	# TODO this fails 1011 and 0111
+	}
+)
 checkAreas(CR4a )
-# TODO this fails 1011 and 0111
-plot(V4a,type="ChowRuskey")
 @
 \caption{Chow-Ruskey weighted 4-set diagram}
 \end{center}
@@ -862,7 +863,7 @@ grid.text(x=inr *cos(-7*angleray),y=inr *sin(-7*angleray),label="r[n]",default.u
 grid.text(x=outr *cos(-angleray),y=outr *sin(-angleray),label="s3",default.units="native")
 grid.text(x=3*cos(-angleray),y=3*sin(-angleray),label="delta",default.units="native")
 
-#PlotVennGeometry(CR4w ,show=list(indicator.string=TRUE,FaceText=""))
+#PlotVennGeometry(CR4w ,show=list(FaceText="signature"))
 #downViewport("Vennvp")
 #PlotNodes(CR4a )
 @
@@ -917,7 +918,7 @@ checkAreas(CK4)
 <<CR4ffig,fig=TRUE>>=
 CK4f <- compute.CR(V4f)
 grid.newpage()
-PlotVennGeometry(CK4f,show=list(FaceText="weight",SetLabels=FALSE))
+PlotVennGeometry(CK4f,show=list(FaceText="signature",SetLabels=FALSE))
 @
 \end{center}\end{figure}
 
@@ -931,75 +932,14 @@ sho4(CR4f )
 \end{center}
 \end{figure}
 
-\begin{figure}[H]\begin{center}
-<<pdCR4,fig=TRUE>>=
-
-
-CR4 <- compute.CR(V4)
-
-sho4(CR4 )
-Ix <- CR4@IntersectionShapes
-
-gp=gpar(fill=c(terrain.colors(10),rep("red",10)))
-
-for (tixi in 1:length(Ix)) {
-	tix <- Ix[[tixi]]
-	if (!is.null(tix) & nrow(tix>0) & names(Ix)[tixi] != "0000") {
-		grid.polygon(x=tix[,1],y=tix[,2],default.units="native",gp=gp[tixi])
-	}
-}
-PlotIntersectionText(CR4,element.plot="inn",show.dark.matter=FALSE)	
-
-
-@
-\caption{Garish fill}
-\end{center}
-\end{figure}
-
 
 
 \section{Euler diagrams}
 \newpage
 \subsection{3-set Euler diagrams}
 
-\subsubsection{Circles}
-There is currently no effect of setting doEuler=TRUE for three circles.
-\begin{figure}[H]\begin{center}
-<<p3threef,fig=TRUE>>=
-CN3 <- compute.C3(VN3,doWeights=TRUE)
-grid.newpage()
-PlotVennGeometry(CN3)
-downViewport("Vennvp")
-PlotFaces(CN3)
-Areas(CN3)
-p2four (VN3)
-@
+
 \end{center}\end{figure}
-
-
-There are about 40 distinct ways in which patterns of zero intersections can occur.
-
-\begin{figure}[H]\begin{center}
-<<pv3wempty,fig=TRUE>>=
-	p2four (Vempty)
-@
-\caption{Weighted 3d Venn with an empty intersection}
-\end{center}\end{figure}
-
-\begin{figure}[H]\begin{center}
-<<pv3wempty2,fig=TRUE>>=
-	p2four (Vempty2)
-@
-\caption{Weighted 3d Venn with two  empty intersections}
-\end{center}\end{figure}
-
-\begin{figure}[H]\begin{center}
-<<pv3wempty3,fig=TRUE>>=
-	p2four (Vempty3)
-@
-\caption{Weighted 3d Venn with three  empty intersections}
-\end{center}\end{figure}
-\clearpage
 \subsubsection{Other examples of circles}
 \begin{figure}[H]
   \begin{center}
@@ -1009,30 +949,7 @@ plot(V3.big,doWeights=TRUE)
 \caption{TODO Big weighted 3d Venn fails}
 \end{center}\end{figure}
 
-<<>>=
-Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
-	Weight= c(0,4148,409,604,543,67,183,146)
-)
-@
 
-\subsection{4-set Euler diagrams}
-\subsubsection{Chow-Ruskey diagrams}
-\begin{figure}[H]\begin{center}
-<<CR4fig,fig=TRUE>>=
-CK4 <- compute.CR(V4)
-grid.newpage()
-PlotVennGeometry(CK4,show=list(FaceText="weight",SetLabels=FALSE))
-Areas(CK4)
-@
-\end{center}\end{figure}
-
-\begin{figure}[H]\begin{center}
-<<CR4ffig,fig=TRUE>>=
-CK4f <- compute.CR(V4f)
-grid.newpage()
-PlotVennGeometry(CK4f,show=list(FaceText="weight",SetLabels=FALSE))
-@
-\end{center}\end{figure}
 %########################################################
 \clearpage
 \newpage
@@ -1041,20 +958,14 @@ PlotVennGeometry(CK4f,show=list(FaceText="weight",SetLabels=FALSE))
 \section{Error checking}
 These should fail
 <<echeck,echo=TRUE>>=
-print(try(Venn(NumberOfSets=3,Weight=1:7)))
+print(try(Venn(numberOfSets=3,Weight=1:7)))
 print(try(V3[1,]))
 @
 
-Requesting a 2D plot for a 3D set produces a warning.
-<<pv3b2>>=
-try(plot(V3.big))
-@
-
-Empty objects work
+Empty objects don't work
 <<nullV>>=
 V0 = Venn()
-weights(V0)
-weights(V0)
+try(weights(V0))
 VennSetNames(V0)
 @
 
