@@ -204,7 +204,7 @@ compute.Venn <- function(V,doWeights=TRUE,doEuler=FALSE,type) {
 
 
 
-plotVenn <- function(V,doWeights=TRUE,doEuler=FALSE,type="circles",add=FALSE,
+plotVenn <- function(V,doWeights=TRUE,doEuler=FALSE,type,add=FALSE,
 			show=list(FaceText="weight",Faces=TRUE),
 		gpList){
 	C3 <- compute.Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
