@@ -200,6 +200,6 @@ plot(V8,type="battle",show=list(SetLabels=FALSE,FaceText="",Faces=TRUE))
 
 @
 \bibliographystyle{plain}
-\bibliography{Venn}
+%\bibliography{Venn}
 
 \end{document}
