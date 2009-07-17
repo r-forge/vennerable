@@ -168,6 +168,7 @@ PlotFaces(VE)
 PlotSetBoundaries(VE,gp=gpar(lwd=2,col=c("red","blue","green")))
 PlotNodes(VE)
 @
+ \end{center}\end{figure}
 
 <<dve4>>=
 	phi <- 0.8; dex <- 1.7;dey <- 2.5; a<- 7.6; e<- 0.9
@@ -301,7 +302,6 @@ VD8 <- injectEdge(drawing=VD8,newEdgeList=VD8@edgeList[c("p9|p8|5","p8|p5|5")],s
 #.validateDrawing(VD8)
 @
 \begin{figure}[H]\begin{center}
-
 <<shoVD7ab,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-7,7),c(-5,10))
@@ -312,6 +312,7 @@ PlotSetBoundaries(VD8,gp=gpar(lwd=2,col=c("red","blue","green","black","orange")
 .PlotFaceNames.TissueDrawing (VD8)
 PlotNodes(VD8)
 @
+ \end{center}\end{figure}
 
 \section{Making a simple drawing from a circle}
 
@@ -443,7 +444,7 @@ VM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
 
 @
 
-
+\begin{figure}[H]\begin{center}
 <<shoVmerge,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
@@ -476,7 +477,7 @@ d  <- 0.9146274 ; s1 <- 2.449490 ; s2 <- 2.645751
 .validateDrawing(TM)
 
 @
-
+\begin{figure}[H]\begin{center}
 <<shoVPPmerge,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
@@ -495,7 +496,7 @@ TMR <- remove.nonintersectionpoints(drawing=TM)
 .validateDrawing(TMR)
 @
 
-
+\begin{figure}[H]\begin{center}
 <<shoVPPremove,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
@@ -534,7 +535,7 @@ VDCPM<- addSetToDrawing (drawing1=VDC1,drawing2=VDP1,set2Name="Set2")
 .validateDrawing(VDCPM)
 @
 
-
+\begin{figure}[H]\begin{center}
 <<shoVPCmerge,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
@@ -547,6 +548,8 @@ PlotNodes(VDCPM)
 
 @
  \end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
 
 <<isect2>>=
 VDCPM2<- addSetToDrawing (drawing1=VDCPM,drawing2=VDP2,set2Name="Set3")
@@ -563,6 +566,7 @@ PlotSetBoundaries(VDCPM2)
 PlotNodes(VDCPM2)
 
 @
+ \end{center}\end{figure}
 
 
 \section{Invisible edges}
@@ -576,8 +580,8 @@ VDI <- addSetToDrawing (drawing1=VDC3,drawing2=VDC4,set2Name="Set2")
 
 .validateDrawing(VDI)
 @
-\begin{figure}[H]\begin{center}
 
+\begin{figure}[H]\begin{center}
 <<shoVDIb,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
@@ -603,7 +607,6 @@ VDO <- addSetToDrawing (drawing1=VDC5,drawing2=VDC6,set2Name="Set2")
 .validateDrawing(VDO)
 @
 \begin{figure}[H]\begin{center}
-
 <<shoVDO,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
