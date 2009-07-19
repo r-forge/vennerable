@@ -220,11 +220,12 @@ in the interior of the larger.
 \end{center}\end{figure}
 We rely on the relationships
 \begin{eqnarray*}
-		d_1^2+y^2 &=& r_1^2 &
+		d_1^2+y^2 &=& r_1^2 
 \\
-	 	d_2^2+ y^2 &=& r_2^2 &
+	 	d_2^2+ y^2 &=& r_2^2 
 \end{eqnarray*}
-If $\max(r_1,r_2)<d<r_1+r_2$ then $d=d_1+d_2$; if $|r_1-r_2| < d<\max(r_1,r_2) then $d=|d_1-d_2|$.
+If $\max(r_1,r_2)<d<r_1+r_2$ then $d=d_1+d_2$;
+ if $|r_1-r_2| < d<\max(r_1,r_2)$ then $d=|d_1-d_2|$.
 
 We rely on the relationships
 \begin{eqnarray*}
@@ -939,7 +940,6 @@ sho4(CR4f )
 \subsection{3-set Euler diagrams}
 
 
-\end{center}\end{figure}
 \subsubsection{Other examples of circles}
 \begin{figure}[H]
   \begin{center}
