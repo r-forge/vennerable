@@ -2,8 +2,12 @@
 compute.AWFE <- function(V,doWeights=FALSE,type="battle") {
 	if(doWeights) { warning("Weights ignored by AWFE algorithm") }
 	n <- NumberOfSets(V)
-	loaded <- data(VennDiagrams,package="Vennerable")
+	# load from cached data, into an environment so we can persuade RCMD check
+	# we have it
+	env <- new.env()
+	loaded <- data(VennDiagrams,package="Vennerable",envir=env)
 	stopifnot("VennDiagrams" %in% loaded)
+	VennDiagrams <- get("VennDiagrams",env=env)
 	if (! type %in% names(VennDiagrams)) {
 		stop(sprintf("No AWFE diagram of type %s known\n",type))
 	}

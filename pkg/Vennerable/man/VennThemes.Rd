@@ -17,11 +17,11 @@ VennThemes(drawing, colourAlgorithm)
 An object of class \code{VennDrawing}
 }
   \item{colourAlgorithm}{
-Missing or one of \code{signature},\code{binary},\code{sequential}. Used to 
+Missing or one of \code{signature},\code{binary},\code{sequential}. 
 }
 }
 \details{
-Set boundary colours  are taken from the \code{RColorBrewer} \code{Set1} palette.
+Set boundary colours  are taken from the \code{\link{RColorBrewer}} \code{Set1} palette.
 If \code{colourAlgorithm="signature"}, face fill colours are taken frome the  \code{RColorBrewer} \code{YlOrRed} 
 palette based on the number of sets represented in the face, so eg all the faces corresponding to membership of a single set are pale yellow while the face corresponding to all the intersections is dark red.
 If \code{colourAlgorithm="binary"}, faces are blue if they correspond to an odd number of intersections and white otherwise.
@@ -41,11 +41,8 @@ A list with four elements
   \item{Set }{Named list of graphical parameters which will be applied to sets with corresponding names }
   \item{FaceText }{Named list of graphical parameters which will be applied to annotation in sets with corresponding names }
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{
-jonathan Swinton jonathan@swintons.net
+Jonathan Swinton (jonathan@swintons.net)
 }
 \seealso{
 See also \code{\link{RColorBrewer}}

@@ -152,18 +152,14 @@
 \alias{zeropos}
 \alias{zerotheta}
 
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Internal functions for Vennerable, plus the ones I haven't documented yet
 }
 \description{
-As well as a number of helper functions, Vennerable includes code for doing polygon-polygon clipping in some (buggy) generality which may be documented if there is demand.
-}
-\usage{
+As well as a number of internal helper functions, Vennerable includes code for doing polygon-polygon clipping in some (buggy) generality which may be documented if there is demand.
 }
 \author{
-Jonathan Swinton jonathan@swintons.net
+Jonathan Swinton (jonathan@swintons.net)
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 \keyword{ graphs }

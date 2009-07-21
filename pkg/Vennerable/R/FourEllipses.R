@@ -8,8 +8,10 @@
 compute.E4 <- function(V,doWeights=FALSE,s=.25,dx=0.2) {
 	if (doWeights) { warning("Cant do a weighted E4") }
 	if (NumberOfSets(V) != 4) { stop("fournotfour")}
-	loaded <- data(VennDiagrams,package="Vennerable")
+	env <- new.env()
+	loaded <- data(VennDiagrams,package="Vennerable",envir=env)
 	stopifnot("VennDiagrams" %in% loaded)
+	VennDiagrams <- get("VennDiagrams",env=env)
 	type <- "ellipses"
 	if (! type  %in% names(VennDiagrams)) {
 		stop(sprintf("No diagram of type %s cached\n",type))

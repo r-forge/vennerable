@@ -11,13 +11,12 @@
 \title{Class "Venn"}
 \description{A class for intersecting multiple sets together}
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("Venn", ...)}.
-	 ~~ describe objects here ~~ 
+Objects should be created by calls to the function \code{\link{Venn}}
 }
 \section{Slots}{
 	 \describe{
-    \item{\code{IndicatorWeight}:}{Object of class \code{"matrix"} ~~ }
-    \item{\code{IntersectionSets}:}{Object of class \code{"list"} ~~ }
+    \item{\code{IndicatorWeight}:}{Object of class \code{"matrix"}  }
+    \item{\code{IntersectionSets}:}{Object of class \code{"list"}. This may be empty. }
   }
 }
 \section{Methods}{
@@ -29,9 +28,7 @@ Objects can be created by calls of the form \code{new("Venn", ...)}.
     \item{show}{\code{signature(object = "Venn")}: ... }
 	 }
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ Jonathan Swinton jonathan@swintons.net }
-\note{ ~~further notes~~ }
+\author{ Jonathan Swinton (jonathan@swintons.net) }
 
 \examples{
 showClass("Venn")
