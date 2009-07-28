@@ -5,7 +5,6 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	if ("package:Vennerable" %in% search())detach("package:Vennerable")
 	library(weaver)
 	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	Sweave(driver="weaver","Venn.Rnw",stylepath=FALSE,use.cache=FALSE)
@@ -22,7 +21,7 @@ makeme()
 
 
 \title{
-Venn diagrams in R with the \texttt{Vennerable} package
+Venn diagrams in R\\with the \texttt{Vennerable} package
 }
 \author{Jonathan Swinton\\\texttt{jonathan@swintons.net}}
 
@@ -41,34 +40,13 @@ Venn diagrams in R with the \texttt{Vennerable} package
 <<loadstuff>>=
 #library(Vennerable)
 <<doremove,echo=FALSE>>=
+if ("package:Vennerable" %in% search())detach("package:Vennerable")
 remove(list=setdiff(ls(),"makeme"));
 library(Vennerable)
-@
-<<loadfromsource,eval=FALSE>>=
-library(grid);library(lattice);library(graph);library(RBGL);library(reshape)
-library(RColorBrewer)
-source("../../R/00Venn.R")
-source("../../R/02TissueDrawing.R")
-source("../../R/03VennDrawing.R")
-source("../../R/Circles.R")
-source("../../R/ThreeSquares.R")
-source("../../R/Triangles.R")
-source("../../R/FourEllipses.R")
-source("../../R/AWFE.R")
-source("../../R/ChowRuskey.R")
-source("../../R/GraphTheory.R")
 @
 
 <<defmakevp>>=
 options(width=80)
-
-makevp.eqsc <- function(xrange,yrange) {
-	# cf Fig 7.4 of Murrell R Graphics
-	pushViewport(plotViewport(name="Vennmar",c(1,1,1,1)))
-	pushViewport(viewport(name="Vennlay",layout=grid.layout(1,1,widths=diff(xrange),heights=diff(yrange),respect=TRUE)))
-	pushViewport(viewport(name="Vennvp",layout.pos.row=1,layout.pos.col=1,xscale=xrange,yscale=yrange))
-	}
-
 @
 \begin{center}
 <<front,fig=TRUE,cache=TRUE,eval=TRUE>>=
@@ -105,7 +83,7 @@ Vstem <- Venn(StemCell)
 Vstem
 @
 Although Vennerable can cope with 4-set Venn diagrams, for now we reduce to a three-set object
-<<to3>>=
+<<to3,echo=TRUE>>=
 Vstem3 <- Vstem[,c("OCT4","SOX2","NANOG")]
 Vstem3
 @
@@ -435,7 +413,7 @@ gpSquare <- function(aVennDrawing) {
 
 
 <<S4figdef,echo=FALSE>>=
-showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="elements")
+showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature")
 dosans <- function(V4,s,likeSquares) {
 	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
 	gp <- gpSquare(S4)
@@ -548,10 +526,9 @@ plot(Venn(n=9),type="battle",show=list(SetLabels=FALSE,FaceText=""))
 \section{Weighted Venn diagrams}
 There are repeated requests to generate Venn diagrams in which the areas of the faces
 themselves are meant to carry information, mainly by being proportional to the intersection weights.
-Even when these diagrams can be drawn, they are not often a success in clearly displaying information. But we shall try any way.
-In general, these will be produced with the \texttt{doWeights=TRUE} argument. 
-
-First of all we consider the case when all the visible intersection weights are nonzero. 
+Even when these diagrams can be drawn, 
+they are not often a success in their information-bearing mission. But we can try anyway, through use
+of the argument \texttt{doWeights=TRUE}. First of all we consider the case when all the visible intersection weights are nonzero. 
 
 
 \subsection{Weighted 2-set Venn diagrams for 2 Sets}
@@ -943,6 +920,11 @@ cat(R.version.string)
 \end{tabular}
 
 \bibliographystyle{plain}
+
+<<echo=FALSE,results=tex,eval=FALSE>>= 
+bib <- system.file( "doc", "Venn.bib", package = "Vennerable" )
+cat( "\\bibliography{",bib,"}\n",sep='')
+@
 %\bibliography{Venn}
 
 \end{document}

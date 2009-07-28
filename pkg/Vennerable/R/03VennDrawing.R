@@ -174,7 +174,7 @@ SetColours <- function(drawing ) {
 		fillcols <- rep(fillcols,times=1+nSets/length(fillcols))
 	}
  	setcolours <-fillcols[1:nSets]; names(setcolours) <- names(drawing@setList)
-	gp <- lapply(names(setcolours ),function(x)gpar(col=setcolours [[x]],fill=NA,lty=1)); 	
+	gp <- lapply(names(setcolours ),function(x)gpar(col=setcolours [[x]],fill=NA,lty=1,lwd=3)); 	
 	names(gp) <- names(setcolours)
 	gp
 }

@@ -21,7 +21,7 @@ Missing or one of \code{signature},\code{binary},\code{sequential}.
 }
 }
 \details{
-Set boundary colours  are taken from the \code{\link{RColorBrewer}} \code{Set1} palette.
+Set boundary colours  are taken from the \code{\link[RColorBrewer]{RColorBrewer}} \code{Set1} palette.
 If \code{colourAlgorithm="signature"}, face fill colours are taken frome the  \code{RColorBrewer} \code{YlOrRed} 
 palette based on the number of sets represented in the face, so eg all the faces corresponding to membership of a single set are pale yellow while the face corresponding to all the intersections is dark red.
 If \code{colourAlgorithm="binary"}, faces are blue if they correspond to an odd number of intersections and white otherwise.
@@ -35,7 +35,6 @@ If not specified, \code{sequential} is used if there are less than 9 faces, othe
 }
 \value{
 A list with four elements
-
   \item{Face }{Named list of graphical parameters which will be applied to faces with corresponding names }
   \item{FaceText }{Named list of graphical parameters which will be applied to annotation in faces with corresponding names }
   \item{Set }{Named list of graphical parameters which will be applied to sets with corresponding names }
@@ -45,7 +44,7 @@ A list with four elements
 Jonathan Swinton (jonathan@swintons.net)
 }
 \seealso{
-See also \code{\link{RColorBrewer}}
+See also \code{\link[RColorBrewer]{RColorBrewer}}
 }
 \examples{
 # change SetNames to large red text
