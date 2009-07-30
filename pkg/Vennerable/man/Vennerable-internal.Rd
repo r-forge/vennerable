@@ -61,7 +61,6 @@
 \alias{compute.E4}
 \alias{compute.S2}
 \alias{compute.S3}
-\alias{compute.S4}
 \alias{compute.T3}
 \alias{ComputeAreas}
 \alias{CreateViewport}

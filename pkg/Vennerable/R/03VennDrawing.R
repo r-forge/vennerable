@@ -97,7 +97,7 @@ VennThemes<- function(drawing,colourAlgorithm) {
 		gpList[["Face"]]<- FaceColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
 	}
 	if (is.null(gpList[["FaceText"]])) {
-		gpList[["FaceText"]] <- FaceTextColours(drawing=drawing)
+		gpList[["FaceText"]] <- FaceTextColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
 	}
 	if (is.null(gpList[["Set"]])) {
 		gpList[["Set"]] <- SetColours(drawing=drawing)
@@ -155,7 +155,18 @@ FaceColours <- function(drawing,faceNames,colourAlgorithm) {
 
 FaceTextColours <- function(drawing,faceNames,colourAlgorithm) {
 	gp <- FaceColours(drawing=drawing,faceNames=faceNames,colourAlgorithm=colourAlgorithm)
-	gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
+	if (!missing(colourAlgorithm)) {
+		if ( colourAlgorithm=="binary") {
+			bcols <- unique(sapply(gp,function(x)x$col))
+			stopifnot(length(bcols)==2)
+			gp <- lapply(gp,function(agp){
+				res<-agp;
+				res$col<- if (res$col==bcols[1]){bcols[2]}else{bcols[1]};
+				res$fill<-res$col;res})
+		}
+	} else {
+		gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
+	}
 	gp
 }
 

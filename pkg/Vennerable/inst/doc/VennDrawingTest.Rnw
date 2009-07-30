@@ -5,7 +5,6 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
 	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
 	Sweave(driver="weaver","VennDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
@@ -48,25 +47,14 @@ regression checks
 \item Plot faces for Chow-Ruskey
 \item General set membership
 \item implement not showing dark matter eg Fig 1
-\item Different choices of first and second sets for AWFE
-\item Add in the equatorial sets for AWFE
 \item AWFE-book like figures
-\item  naming of weights for triangles
 \item  likesquares argument for triangles
-\item  likesquares argument for 4-squares
 \item  central dark matter
 \item Comment on triangles
 \item Comment on AWFE
-return geometry
-\item calculate three circle areas correctly
 \item text boxes
 \item use grob objects/printing properly
-\item "Exact" slot mess 
- \item proper data handling:
-\item choose order; 
 \item cope with missing data including missing zero intersection; 
-\item Define weights via names
-\item graphical parameters
 \item discuss Chow-Ruskey zero=nonsimple 
 
 \end{itemize}
@@ -76,21 +64,20 @@ remove(list=setdiff(ls(),"makeme"));
 @
 
 <<loadmore,echo=FALSE>>=
-options(width=45)
+options(width=80)
 @
 \section{Venn objects}
 
 <<defcombo,echo=TRUE>>=
+if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 library(Vennerable)
+@
 
+
+<<mvn1,echo=TRUE>>=
 Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
 	Weight= c(0,4148,409,604,543,67,183,146)
 )
-@
-
-For a running example, we use sets named after months,
-whose elements are the letters of their names.
-<<mvn1,echo=TRUE>>=
 setList <- strsplit(month.name,split="")
 names(setList) <- month.name
 VN3 <- VennFromSets( setList[1:3])
@@ -128,7 +115,8 @@ Vempty3 <- VennFromSets( setList[c(4,5,6)])
 @
 
 \section{The VennDrawing object}
-<<testVD>>=
+This is created from a \texttt{TissueDrawing} object and a \texttt{Venn} object
+<<testVD,echo=TRUE>>=
 centre.xy <- c(0,0)
 VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1); 
 VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
@@ -140,10 +128,9 @@ VD2 <- new("VennDrawing",TM,V2)
 
 <<shoDV,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-7,7),c(-5,10))
+makevp.eqsc(c(-4,4),c(-4,4))
 grid.xaxis()
 grid.yaxis()
-#.PlotArcs(DV,c("p1|p2|2","p2|p1|2"),arrow=arrow())
 PlotFaces(VD2)
 PlotSetBoundaries(VD2,gp=gpar(lwd=2,col=c("red","blue","green")))
 PlotNodes(VD2)
@@ -171,7 +158,7 @@ PlotNodes(VD2)
  pushViewport(viewport(layout=grid.layout(2,1)))
 	pushViewport(viewport(layout.pos.row=1))
 
- PlotVennGeometry(C2,show=(list(FaceText="")))
+ PlotVennGeometry(C2,show=(list(FaceText="",SetLabels=FALSE)))
  downViewport(name="Vennvp")
  grid.xaxis()
  grid.yaxis()
@@ -196,7 +183,7 @@ Cr <- c(0.8,0.4)
  d2 <- d - d1
  y <- (1/(2*d))* sqrt(4*d^2*r[1]^2-(d^2-r[2]^2+r[1]^2)^2)
 
- PlotVennGeometry(C2,show=(list(FaceText="")))
+ PlotVennGeometry(C2,show=(list(FaceText="",SetLabels=FALSE)))
  downViewport(name="Vennvp")
  grid.xaxis()
  grid.yaxis()
@@ -215,10 +202,15 @@ UpViewports()
 popViewport()
 
 @
-There is an intersection if $|r_1-r_2|<d<r_1+r_2$. If so and $d<\max(r_1,r_2$ the centre of the smaller circle is 
-in the interior of the larger.
+\caption{Geometry of two overlapping circles}
+\label{fig:g2c}
 \end{center}\end{figure}
-We rely on the relationships
+
+
+There is an intersection if $|r_1-r_2|<d<r_1+r_2$. If so and $d<\max(r_1,r_2)$
+ the centre of the smaller circle is 
+in the interior of the larger.
+Either way we have the relationships
 \begin{eqnarray*}
 		d_1^2+y^2 &=& r_1^2 
 \\
@@ -233,45 +225,10 @@ We rely on the relationships
 \\
 	 	d_2  &=& |d - d_1|
 \\
-		y &=& frac{1}{2 d} \sqrt{4 d^2 r_1^2-(d^2-r_2^2+r_1^2)^2}	
+		y &=& \frac{1}{2 d} \sqrt{4 d^2 r_1^2-(d^2-r_2^2+r_1^2)^2}	
 \\
 &=& \sqrt{r_1^2-d_1^2}
 \end{eqnarray*}
-
-<<defpf,echo=FALSE>>=
-
-@
-<<shoC2,fig=TRUE,echo=FALSE>>=
-#source("../../R/Circles.R")
-
- r <- c(0.8,0.4)
- d.origin <- 0.5
- d <- 2*d.origin
-
- C2 <- TwoCircles(r=r,d=d,V2)
- C2 <- .square.universe(C2,doWeights=FALSE)
-
-#PlotVennGeometry(C2); downViewport("Vennvp")
-grid.newpage()
-CreateViewport(C2)
-PlotVennGeometry  (C2,show=list(Faces=TRUE))
-#internalPointsofFaces (C2)
-@
-
-<<C2demo,cache=TRUE,echo=FALSE,results=hide>>=
-C2 <- TwoCircles(r=c(0.6,0.1),d=0.4,V2)
-C2
-C2 <- compute.C2(V2,doWeights=FALSE)
-IntersectionMidpoints(C2)
-SetLabelPositions(C2)
-Areas(C2)
-VisibleRange(C2)
-grid.newpage()
-PlotVennGeometry(C2,show=list(SetLabels=FALSE))
-downViewport("Vennvp")
-PlotNodes(C2)
-@
-
 
 \clearpage
 \subsection{Weighted 2-set Venn diagrams for 2 Sets}
@@ -291,8 +248,8 @@ checkAreas <- function(object) {
 	res <- subset(res,IndicatorString != dark.matter.signature(object) & !( Weight==0 & abs(Area)<1e-4))
 	res$Density <- res$Area/res$Weight
 	res <- subset(res, abs(log10(Density))>log10(1.1))
-	if(nrow(res)>0) { warning("Area check failed")}
-	res
+	if(nrow(res)>0) { print(res);stop("Area check failed")}
+	print("Area check passed")
 }
 @
 
@@ -389,7 +346,6 @@ p2four (V2.no11,doFaces=TRUE)
 \caption{As before for a different set of weights}
 \end{center}\end{figure}
 
-w=compute.C2(V=V2.no10,doEuler=TRUE,doWeights=FALSE)
 
 \begin{figure}[H]\begin{center}
 <<p2no10threef,fig=TRUE>>=
@@ -614,7 +570,7 @@ IntersectionMidpoints(T3a)
 Areas(T3a)
 
 T3.big <- compute.T3(V3.big)
-T3a <- try(compute.T3(V3a))
+T3a <- (compute.T3(V3a))
 TN <- compute.T3(VN3)
 TCombo <- try(compute.T3(Vcombo))
 
@@ -630,8 +586,7 @@ PlotVennGeometry(T3a,show=list(FaceText="signature"))
 \end{figure}
 
 \section{Three Squares}
-This is a version of the algorithm suggested by \citet{chowruskey:2003}.
-TODO likesquares
+This is a version of the algorithm suggested by Chow Ruskey 2003.
 \begin{figure}[H]\begin{center}
 <<S3ccpdemo,fig=TRUE>>=
 S3a <- compute.S3(V3a,doWeights=TRUE)
@@ -658,84 +613,20 @@ PlotVennGeometry(S3a)
 
 \section{Four squares}
 \subsection{Unweighted 4-set Venn diagrams}
-\begin{figure}[H]\begin{center}
-<<S4figdef,echo=TRUE>>=
-doans <- function(V4,s,likeSquares) {
-	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
-	CreateViewport(S4)
-	PlotSetBoundaries(S4,gp=gpar(lwd=4:1,col=trellis.par.get("superpose.symbol")$col))
-	UpViewports()
-}
-@
-<<S4fig,fig=TRUE,cache=TRUE>>=
-grid.newpage()
-pushViewport( viewport(layout=grid.layout(2,2)))
-pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
-doans(V4,s=0.2,likeSquares=FALSE)
-upViewport()
-pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
-doans(V4,s=0,likeSquares=FALSE)
-upViewport()
-pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
-doans(V4,s=0.2,likeSquares=TRUE)
-upViewport()
-pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
-doans(V4,s=0,likeSquares=TRUE)
-upViewport()
 
-@
-\caption{Four variants on the four-squares}
-\end{center}\end{figure}
-
-
-\subsection{Four squares}
 \begin{figure}[H]\begin{center}
 
 <<S4demoff,fig=TRUE,echo=FALSE>>=
 S4  <- compute.S4(V4,s=0.2,likeSquares=TRUE)
 grid.newpage()
-#PlotVennGeometry(S4)
 CreateViewport(S4)
 PlotSetBoundaries(S4)
 PlotIntersectionText (S4,element.plot="elements")
-#PlotNodes(S4)
+PlotNodes(S4)
 
-#face <- nodeData(S4@regions,"1010",attr="Region")[[1]]
-#face <- nodeData(S4@regions,"1000",attr="Region")[[1]]
-#face <- nodeData(makeAWFEstar() ,"1000",attr="Region")[[1]]
-#rectifyEdges(face)
 @
 \end{center}\end{figure}
 \begin{figure}[H]\begin{center}
-
-<<S4demoffinn,fig=TRUE,echo=FALSE>>=
-S4  <- compute.S4(V4,s=0.2,likeSquares=TRUE)
-grid.newpage()
-#PlotVennGeometry(S4)
-CreateViewport(S4)
-PlotSetBoundaries(S4)
-PlotIntersectionText (S4,element.plot="inn")
-PlotNodes(S4)
-
-#face <- nodeData(S4@regions,"1010",attr="Region")[[1]]
-#face <- nodeData(S4@regions,"1000",attr="Region")[[1]]
-#face <- nodeData(makeAWFEstar() ,"1000",attr="Region")[[1]]
-#rectifyEdges(face)
-@
-\end{center}\end{figure}
-
-\clearpage
-\section{Four Ellipses}
-Ellipses don't have faces or nodes, and can't have weights sent.
-
-DOES NOT WORK
-<<doe4,fig=TRUE,eval=FALSE>>=
-E4 <- compute.Venn(V4,type="ellipses")
-grid.newpage()
-PlotVennGeometry(E4,show=list(SetLabels=FALSE,FaceText=""))
-downViewport("Vennvp")
-PlotNodes(E4)
-@
 
 \clearpage
 
@@ -766,7 +657,7 @@ plot.gridrays  <- function(nSets,radius=3) {
 
 sho4 <- function(CR4) {
 	grid.newpage()
-	PlotVennGeometry(CR4 ,show=list(FaceText="signature"))
+	PlotVennGeometry(CR4 ,show=list(FaceText="signature",SetLabels=FALSE))
 	downViewport("Vennvp")
 	plot.grideqsc(-4:4)
 	plot.gridrays(NumberOfSets(CR4),radius=5)
@@ -778,24 +669,6 @@ sho4 <- function(CR4) {
 
 
 \subsection{Chow-Ruskey diagrams for 3  sets}
-The general Chow-Ruskey algorithm can be implemented
-in principle for an arbitrary number of sets provided
-the weight of the common intersection is nonzero.
-
-
-\begin{figure}[H]\begin{center}
-<<plotCR3,echo=FALSE,fig=TRUE>>=
-CR3a <- compute.CR(V3a)
-grid.newpage()
-PlotVennGeometry(CR3a ,show=list(FaceText="signature"))
-downViewport("Vennvp")
-#PlotNodes(T3a )
-checkAreas(CR3a )
-@
-\caption{Chow-Ruskey weighted 3-set diagram}
-\end{center}
-\end{figure}
-
 
 \begin{figure}[H]\begin{center}
 <<pCR3,fig=TRUE>>=
@@ -825,6 +698,7 @@ V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
 <<plotCR4,echo=FALSE,fig=TRUE>>=
 CR4a <-  compute.CR(V4a)
 grid.newpage()
+PlotVennGeometry(CR4a,show=list(FaceText=character(0)))
 try( {
 	PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
 	# TODO this fails 1011 and 0111
@@ -832,7 +706,7 @@ try( {
 )
 checkAreas(CR4a )
 @
-\caption{Chow-Ruskey weighted 4-set diagram}
+\caption{Chow-Ruskey weighted 4-set diagram, produces an error if we try to plot signature face text}
 \end{center}
 \end{figure}
 
@@ -864,9 +738,6 @@ grid.text(x=inr *cos(-7*angleray),y=inr *sin(-7*angleray),label="r[n]",default.u
 grid.text(x=outr *cos(-angleray),y=outr *sin(-angleray),label="s3",default.units="native")
 grid.text(x=3*cos(-angleray),y=3*sin(-angleray),label="delta",default.units="native")
 
-#PlotVennGeometry(CR4w ,show=list(FaceText="signature"))
-#downViewport("Vennvp")
-#PlotNodes(CR4a )
 @
 \caption{Chow-Ruskey weighted 4-set diagram}
 \end{center}
@@ -916,15 +787,6 @@ checkAreas(CK4)
 \end{center}\end{figure}
 
 \begin{figure}[H]\begin{center}
-<<CR4ffig,fig=TRUE>>=
-CK4f <- compute.CR(V4f)
-grid.newpage()
-PlotVennGeometry(CK4f,show=list(FaceText="signature",SetLabels=FALSE))
-@
-\end{center}\end{figure}
-
-
-\begin{figure}[H]\begin{center}
 <<pCR4,fig=TRUE>>=
 CR4f <- compute.CR(V4f)
 sho4(CR4f )
@@ -962,10 +824,10 @@ print(try(Venn(numberOfSets=3,Weight=1:7)))
 print(try(V3[1,]))
 @
 
-Empty objects don't work
-<<nullV>>=
+Empty objects work
+<<nullV,echo=TRUE>>=
 V0 = Venn()
-try(weights(V0))
+(Weights(V0))
 VennSetNames(V0)
 @
 
@@ -990,6 +852,6 @@ cat(R.version.string)
 \end{tabular}
 
 \bibliographystyle{plain}
-%\bibliography{Venn}
+\bibliography{./Venn}
 
 \end{document}
