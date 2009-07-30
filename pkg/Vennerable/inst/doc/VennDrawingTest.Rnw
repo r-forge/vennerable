@@ -626,7 +626,6 @@ PlotNodes(S4)
 
 @
 \end{center}\end{figure}
-\begin{figure}[H]\begin{center}
 
 \clearpage
 
