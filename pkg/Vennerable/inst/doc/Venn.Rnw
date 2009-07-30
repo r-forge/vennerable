@@ -183,7 +183,7 @@ plot(C3)
 \end{center}\end{figure}
 @
 Note the use of a function from the \texttt{grid} graphics library package: 
-qll of the renderings are created using \texttt{grid} objects.
+all of the renderings are created using \texttt{grid} objects.
 The \texttt{compute.Venn} function can take a variety of arguments such 
 as \texttt{doWeights} controlling the geometry and topology of the drawing, while the \texttt{plot} method
 has a number of arguments controlling annotation and display.
@@ -223,7 +223,7 @@ gp <- VennThemes(C3,colourAlgorithm="binary")
 plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 @
 \caption{The effect of setting \texttt{ColourAlgorithm="binary"} and \texttt{FaceText="sets"}} 
-\label{fig:canonical}
+\label{fig:canonicalb}
 \end{center}\end{figure}
 
 
@@ -646,8 +646,8 @@ the weight of the common intersection is nonzero. In practice the package is lim
 
 
 \begin{figure}[H]\begin{center}
-<<plotCR3,echo=FALSE,fig=TRUE>>=
-plot(V3a,type="ChowRuskey")
+<<plotCR3,echo=TRUE,fig=TRUE>>=
+plot(V3a,type="ChowRuskey",show=list(SetLabels=FALSE))
 @
 \caption{Chow-Ruskey weighted 3-set diagram}
 \end{center}
@@ -655,10 +655,10 @@ plot(V3a,type="ChowRuskey")
 
 \begin{figure}[H]\begin{center}
 <<>>=
-V4a <- Venn(SetNames=month.name[1:4],Weight=16:1)
 @
-<<plotCR4,echo=FALSE,fig=TRUE,cahce=TRUE>>=
-plot(V4a,type="ChowRuskey")
+<<plotCR4,echo=TRUE,fig=TRUE,cache=TRUE>>=
+V4a <- Venn(SetNames=LETTERS[1:4],Weight=16:1)
+plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE))
 @
 \caption{Chow-Ruskey weighted 4-set diagram}
 \end{center}
@@ -764,7 +764,7 @@ Weights(Vmonth2.no11)["11"] <- 0
 <<p2threef01,fig=TRUE>>=
 p2four (Vmonth2.no01,doFaces=TRUE)
 @
-\caption{Effect of the Euler and \texttt{doWeights} flags.}
+\caption{Effect of the \texttt{doEuler} and \texttt{doWeights} flags for a \texttt{Venn} object with \texttt{Weights(V)["01"]=0}}
 \end{center}\end{figure}
 
 
@@ -772,7 +772,7 @@ p2four (Vmonth2.no01,doFaces=TRUE)
 <<p2no11threef,fig=TRUE>>=
 p2four (Vmonth2.no11,doFaces=TRUE)
 @
-\caption{As before for a set of weights with different zeroes}
+\caption{As before for when the intersection set has zero weight}
 \end{center}\end{figure}
 
 \subsubsection{Squares}
@@ -874,7 +874,7 @@ the weighted diagrams produced are Euler diagrams.
 
 
 The \texttt{doEuler} flag has no effect for Chow-Ruskey because all
-the weighted diagrams produced are Euler diagrams.
+the weighted diagrams produced are already Euler diagrams.
 
 \begin{figure}[H]\begin{center}
 <<CR4fig,fig=TRUE>>=
@@ -884,9 +884,6 @@ plot(CK4,show=list(SetLabels=FALSE,FaceText="sets",Faces=TRUE))
 @
 \caption{Chow-Ruskey diagram with some zero weights}
 \end{center}\end{figure}
-<<>>=
-showe <- list(FaceText="elements",Faces=TRUE)
-@
 
 
 \section{This document}
@@ -895,7 +892,7 @@ showe <- list(FaceText="elements",Faces=TRUE)
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id${}$.
+SVN id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\
@@ -910,8 +907,10 @@ cat(R.version.string)
 \bibliographystyle{plain}
 
 <<echo=FALSE,results=tex,eval=TRUE>>= 
-bib <- system.file( "doc", "Venn.bib", package = "Vennerable" )
-bib <- gsub("~","\\~",bib,fixed=TRUE)
+# tilde from shortened windows pathname really upsets latex....
+#bib <- system.file( "doc", "Venn.bib", package = "Vennerable" )
+#bib <- gsub("~","\\~",bib,fixed=TRUE)
+bib <- "Venn"
 cat( "\\bibliography{",bib,"}\n",sep='')
 @
 %\bibliography{Venn}
