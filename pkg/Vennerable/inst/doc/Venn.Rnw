@@ -100,11 +100,12 @@ plot(Vstem3,doWeights=FALSE)
 \end{center}\end{figure}
 
 Quite commonly, we may have sets whose intersections we only know by the number of elements. These
-can be created as \texttt{Venn} objects by supplying a named vector of \texttt{Weights}:
+can be created as \texttt{Venn} objects by supplying a named
+ vector of \texttt{Weight}s:
 <<echo=TRUE>>=
 Vdemo2 <- Venn(SetNames=c("foo","bar"),Weight= c("01"=7,"11"=8,"10"=12))
 @
-Either way, we can plot Venn diagrams in which the area of each intersection is proportional to those weights as in Figure~\ref{fig:w2}.
+Whichever way the \texttt{Venn} object is created, we can plot Venn diagrams in which the area of each intersection is proportional to those weights as in Figure~\ref{fig:w2}.
 \begin{figure}[H]\begin{center}
 <<pVS23,echo=TRUE,fig=TRUE>>=
 plot(Vdemo2,doWeights=TRUE,type="circles")
@@ -114,7 +115,7 @@ plot(Vdemo2,doWeights=TRUE,type="circles")
 \end{center}\end{figure}
   
 
-For these basic plots, use of the \texttt{Vennerable} package is perhaps
+For these basic plots, use of the \texttt{Vennerable} package may sometimes
 overkill, but in more complex situations it has useful abilities.
 First it allows the use of a variety of other shapes for
 the set boundaries, and up to nine different sets.
@@ -163,21 +164,12 @@ For more details and rather more rigour see first the online review of Ruskey an
 
 \newpage
 \section{Computation and Annotation}
-For a running example, we use sets named after months,
-whose elements are the letters of their names.
-<<mvn1,echo=TRUE>>=
-setList <- strsplit(month.name,split="")
-names(setList) <- month.name
-Vmonth3 <- VennFromSets( setList[1:3])
-Vmonth2 <- Vmonth3[,c("January","February"),]
-@
-
 \subsection{Computing Venn drawings}
 The calls to \texttt{plot} are really convenience wrappers for two separate functions which compute the 
 geometry of the drawing first, returning an object of class \texttt{VennDrawing}  and then renders that object.
 For example
 <<pnosho,echo=TRUE,eval=FALSE>>=
-plot(Vmonth3,doWeights=TRUE)
+plot(Vstem3,doWeights=TRUE)
 @
 is equivalent to
 \begin{figure}[H]\begin{center}
@@ -190,19 +182,21 @@ plot(C3)
 \label{fig:canonicalw}
 \end{center}\end{figure}
 @
-Note the use of a function from the \texttt{grid} graphics library package. 
-All of the renderings use \texttt{grid} objects for more powerful subsequent processing.
-The \texttt{compute.Venn} function can take a variety of arguments such as \texttt{doWeights}controlling the geometry and topology of the drawing, while the \texttt{plot} method
+Note the use of a function from the \texttt{grid} graphics library package: 
+qll of the renderings are created using \texttt{grid} objects.
+The \texttt{compute.Venn} function can take a variety of arguments such 
+as \texttt{doWeights} controlling the geometry and topology of the drawing, while the \texttt{plot} method
 has a number of arguments controlling annotation and display.
 \subsection{Annotation parameters}
 The text displayed in each face is controlled by the \texttt{FaceText} element of
-the \texttt{show} parameter list to \texttt{plot}. Other elements of the parameter control whether eg set names are displayed or faces are individually coloured
+the \texttt{show} parameter list to \texttt{plot}. 
+Other elements of the parameter control whether, for example, set names are displayed or faces are individually coloured
 
 \begin{figure}[H]\begin{center}
 <<pwabVmonth3sig,echo=TRUE,fig=TRUE>>=
 plot(C3,show=list(FaceText="signature",SetLabels=FALSE,Faces=FALSE))
 @
-\caption{The same Venn diagram with different\texttt{show} parameters} 
+\caption{The same Venn diagram with different \texttt{show} parameters} 
 \label{fig:canonicals}
 \end{center}\end{figure}
 
@@ -216,17 +210,19 @@ plot(C3,gpList=gp)
 @
 The only available high-level modification is that \texttt{VennThemes} can take the \texttt{ColourAlgorithm} style - see the man page for more details.
 Low-level modifications can be made by modifiying the \texttt{gp} argument itself. That must
-be a named list, with elements that can include \texttt{Face},\texttt{FaceText},\texttt{Set}, and \texttt{SetText}.
+be a named list, with elements that can include \texttt{Face},
+\texttt{FaceText},
+\texttt{Set}, and \texttt{SetText}.
 Each of those elements is itself a named list named by either the name of the set or the signature of the face. 
-The elements of these lists in turn are graphical parameters in the sense of the \texttt{grid} package, essentially lists of parameter-value pairs in the sense of the \texttt{grid} package.
-
+The elements of these lists in turn are graphical parameters in the sense of
+ the \texttt{grid} package, essentially lists of parameter-value pairs.
 
 \begin{figure}[H]\begin{center}
 <<pwabVmonth3,echo=TRUE,fig=TRUE>>=
 gp <- VennThemes(C3,colourAlgorithm="binary")
 plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 @
-\caption{The effect of a different \texttt{ColourAlgorithm}} 
+\caption{The effect of setting \texttt{ColourAlgorithm="binary"} and \texttt{FaceText="sets"}} 
 \label{fig:canonical}
 \end{center}\end{figure}
 
@@ -234,13 +230,22 @@ plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 \newpage
 \section{Unweighted Venn diagrams}
 
+For another running example, we use sets named after months,
+whose elements are the letters of their names.
+<<mvn1,echo=TRUE>>=
+setList <- strsplit(month.name,split="")
+names(setList) <- month.name
+Vmonth3 <- VennFromSets( setList[1:3])
+Vmonth2 <- Vmonth3[,c("January","February"),]
+@
+
+
 
 \subsection{Unweighted 2-set Venn diagrams}
 
 
 For two sets, a diagram can be drawn using either circles or squares, as controlled
-by the \texttt{type} argument. This is shown in Figure~\ref{fig:Vmonth2cs} where the \texttt{show} and
-\texttt{doWeights} parameters are not shown.\footnote{Here and in the rest of this vignette, much of the code to plot the Figures, which is mainly devoted to
+by the \texttt{type} argument. This is shown in Figure~\ref{fig:Vmonth2cs}.\footnote{Here and in the rest of this vignette, much of the code to plot the Figures, which is mainly devoted to
 layout,  is not shown. However it can always be found by inspecting the source code
 of the vignette at \texttt{PACKAGETREE/Vennerable/doc/Venn.Rnw} where \texttt{PACKAGETREE} is directory where the package was installed.}.
 
@@ -301,7 +306,7 @@ The Chow-Ruskey plot is from \cite{chowruskey:2005}, and is a redrawing of the A
 allow all of the faces to be adjusted in area without disrupting the topology of the diagram. 
 The triangles plot is fairly obvious, for example to reference\cite{chow:2007}, but I have not seen it implemented elsewhere.
 
-This example of the squares plot is not\emph{simple}, in the sense of \cite{ruskeyweston:2005}, because the set boundaries don't cross transversally.
+This example of the squares plot is not \emph{simple}, in the sense of \cite{ruskeyweston:2005}, because the set boundaries don't cross transversally.
 Topologically, there is only one simple Venn diagram of order 3 (in a way that \cite{ruskeyweston:2005} makes precise).
 
 
@@ -358,7 +363,7 @@ The ellipse plot was suggested by Venn \cite{venn:1880}.
 Note how the package makes an attempt to identify a point within each face where the annotation can be plotted,
 but doesn't make a very good choice for very non-concave or elongated faces.
 
-<<makeCrd1c,echo=TRUE>>=
+<<makeCrd1c,echo=FALSE>>=
 V4 <-  Venn(n=4)
 @
 
@@ -397,8 +402,7 @@ plotV4uw(V4)
 A number of variants on the \texttt{squares} type are implemented. Currently they can only be accessed
 by passing the parameters \texttt{s} or \texttt{likesquares} to the low level creation function \texttt{compute.S4} directly,
 which is what is done in Figure~\ref{fig:4sq4}.
-Also, for display purposes it can be easier
-to make sense of if the set boundaries differ in line thickness as shown here.
+Also, note how the set boundaries have differing line thicknesses.
 <<defs,echo=FALSE>>=
 gpSquare <- function(aVennDrawing) {
 	gp <- VennThemes(aVennDrawing)
@@ -413,7 +417,7 @@ gpSquare <- function(aVennDrawing) {
 
 
 <<S4figdef,echo=FALSE>>=
-showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature")
+showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="")
 dosans <- function(V4,s,likeSquares) {
 	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
 	gp <- gpSquare(S4)
@@ -429,7 +433,7 @@ dosans <- function(V4,s,likeSquares) {
 }
 
 @
-For more details on this see the help pages.
+For more details on this see the help pages for \texttt{compute.S4}.
 
 \begin{figure}[H]\begin{center}
 <<S4fig,fig=TRUE>>=
@@ -535,15 +539,12 @@ of the argument \texttt{doWeights=TRUE}. First of all we consider the case when 
 \subsubsection{Circles}
 It is always possible to get an exactly area-weighted solution for two circles 
 as shown in Figure \ref{fig:pv2b2}.
-<<defv32big,echo=FALSE>>=
-V3.big <- Venn(SetNames=month.name[1:3],Weight=2^(1:8))
-Vmonth2.big <- V3.big[,c(1:2)]
-@
-
 
 \begin{figure}[H]
   \begin{center}
-<<pv2b2,fig=TRUE>>=
+<<pv2b2,fig=TRUE,echo=TRUE>>=
+V3.big <- Venn(SetNames=LETTERS[1:3],Weight=2^(1:8))
+Vmonth2.big <- V3.big[,c(1:2)]
 plot(Vmonth2.big)
 @
 \caption{Weighted 2d Venn}
@@ -551,22 +552,12 @@ plot(Vmonth2.big)
 \end{center}\end{figure}
 
 
-
-<<subV,echo=FALSE>>=
-Vmonth2 <- Vmonth3[,1:2,]
-Vmonth2 <- Vmonth3[,c("January","February"),]
-#Weights(Vmonth2)
-@
-<<checkV,echo=FALSE>>=
-stopifnot(NumberOfSets(Vmonth2)==2)
-@
-
 \subsubsection{Squares}
 As for circles, square weight-proportional diagrams 
 can be simply constructed.
 \begin{figure}[H]
   \begin{center}
-<<sqpv2b,fig=TRUE>>=
+<<sqpv2b,fig=TRUE,echo=TRUE>>=
 plot(Vmonth2.big,type="squares")
 @
 \caption{Weighted 2d Venn squares}
@@ -575,24 +566,23 @@ plot(Vmonth2.big,type="squares")
 \newpage
 \subsection{Weighted 3-set Venn diagrams}
 
-<<defVcombo>>=
-Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
-	Weight= c(0,4148,409,604,543,67,183,146)
-)
-@
 
 \subsubsection{Circles}
 There is no general way of creating area-proportional
 3-circle diagrams. While these attempts at these diagrams are quite commonly seen, they must almost always be inexact.
 
-The package makes an attempt
-to produce approximate ones.
+The \texttt{Vennerable} package makes an attempt
+at produce approximate ones. Figure~\ref{fig:combo}
+shows a dataset taken from Chow and Ruskey \cite{chowruskey:2003}
 \begin{figure}[H]
   \begin{center}
-<<ccomboutransp,fig=TRUE>>= 
+<<ccomboutransp,fig=TRUE,echo=TRUE>>= 
+Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
+	Weight= c(0,4148,409,604,543,67,183,146))
 plot(Vcombo)
 @
   \caption{ 3D Venn diagram }
+\label{fig:combo}
   \end{center}
 \end{figure}
 The algorithm used is to compute the individual circles to have the exact area necessary
@@ -602,12 +592,11 @@ the largest is reduced until they do. Then the circles are arranged with their c
 separated by these (possibly modified) distances.
 
 
-<<Vdemo,echo=FALSE>>=
+<<Vdemo,echo=FALSE,eval=FALSE>>=
 V3 <- Venn(SetNames=month.name[1:3])
 Weights(V3) <- c(0,81,81,9,81,9,9,1)
-V3a <- Venn(SetNames=month.name[1:3],Weight=1:8)
-
 @
+
 
 \newpage
 
@@ -620,14 +609,15 @@ which tries to generate rectangles as the set boundaries if possible
 <<S3ccpdemo1,fig=TRUE>>=
 plot(Vstem3,type="squares")
 @
-\caption{Weighted 3-set Venn diagram based on the algorithm of \citet{chowruskey:2003}}
+\caption{Weighted 3-set Venn diagram based on the algorithm of \cite{chowruskey:2003}}
 \end{center}\end{figure}
 
 \begin{figure}[H]\begin{center}
-<<S3ccpdemo2,fig=TRUE>>=
+<<S3ccpdemo2,fig=TRUE,echo=TRUE>>=
+V3a <- Venn(SetNames=month.name[1:3],Weight=1:8)
 plot(V3a,type="squares",show=list(FaceText="weight",SetLabels=FALSE))
 @
-\caption{Weighted 3-set Venn diagram based on the algorithm of \citet{chowruskey:2003}. This time the algorithm fails to find rectangles.}
+\caption{Weighted 3-set Venn diagram based on the algorithm of \cite{chowruskey:2003}. This time the algorithm fails to find rectangles.}
 \end{center}\end{figure}
 
 
@@ -641,11 +631,9 @@ an area-proportional drawing under some contraints on the weights (detailed else
 \begin{figure}[H]\begin{center}
 <<plotT3,echo=TRUE,fig=TRUE>>=
 C3t <- compute.Venn(V3a,type="triangles")
-gp <- VennThemes(C3t)
-gp[["Set"]] <- lapply(gp[["Set"]],function(gps){gps$lwd <- 3;gps})
-plot(C3t,gp=gp,show=list(SetLabels=FALSE))
+plot(C3t,show=list(SetLabels=FALSE))
 @
-\caption{Triangular Venn with external universe}
+\caption{Weighted Triangular Venn diagram}
 \end{center}
 \end{figure}
 
@@ -921,8 +909,9 @@ cat(R.version.string)
 
 \bibliographystyle{plain}
 
-<<echo=FALSE,results=tex,eval=FALSE>>= 
+<<echo=FALSE,results=tex,eval=TRUE>>= 
 bib <- system.file( "doc", "Venn.bib", package = "Vennerable" )
+bib <- gsub("~","\\~",bib,fixed=TRUE)
 cat( "\\bibliography{",bib,"}\n",sep='')
 @
 %\bibliography{Venn}
