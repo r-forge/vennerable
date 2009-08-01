@@ -315,7 +315,6 @@ compute.CR <- function(V,doWeights=TRUE) {
 	# then prepare the graph we want to construct
 	#################
 	Weight <- Weights(V)
-	VS <- VennSignature(V) # will be the same as names(regions)
 		
 	
 	angleray <- 2*pi / twok 
@@ -364,7 +363,7 @@ compute.CR <- function(V,doWeights=TRUE) {
 	for (six in 1:length(names(TD@setList))) {
 		setName <- names(TD@setList)[[six]]
 		sedges <- .face.to.faceEdges(drawing=TD,setName,type="set")
-		setray <- subset(srp.df,SetNumber==six)
+		setray <- srp.df[srp.df$SetNumber==six,]
 		setray <- rbind(setray,setray)
 		for (sex in 1:length(sedges)) {
 			ename <- names(sedges)[sex]
