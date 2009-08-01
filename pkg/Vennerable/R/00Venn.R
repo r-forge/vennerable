@@ -163,7 +163,6 @@ setMethod("[","Venn", function(x,i,j,...,drop) {
 ####################
 
 compute.Venn <- function(V,doWeights=TRUE,doEuler=FALSE,type) {
-print("compute.Venn")
 	nSets <- NumberOfSets(V)
 	if (nSets < 2) {
 		stop("Not enough sets")
