@@ -5,10 +5,9 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 	library(weaver)
 	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
-	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
+	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=TRUE)
 }
 makeme()
 @
@@ -23,7 +22,7 @@ makeme()
 
 
 \title{
-The drawing objects
+TissueDrawing
 \\
 Technical details and 
 regression checks
@@ -45,13 +44,17 @@ regression checks
 
 <<doremove,echo=FALSE,cache=FALSE>>=
 remove(list=setdiff(ls(),"makeme"));
+if ("package:Vennerable" %in% search()) detach("package:Vennerable")
 library(Vennerable)
 @
 
 <<loadmore,echo=FALSE>>=
-options(width=70)
+options(width=80)
+shoar <- function(VDI) {lapply(VDI@edgeList,function(lh){xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())})}
 @
 
+\tableofcontents
+\newpage
 
 
 \section{The VDedgeSector object}
@@ -161,7 +164,7 @@ VE <- newTissueFromEllipse (f1=c(0,0),phi=pi/4,e=.5,a=0.5,Set=1)
 \begin{figure}[H]\begin{center}
 <<shoVE1,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-7,7),c(-5,10))
+makevp.eqsc(c(-2,2),c(-2,2))
 grid.xaxis()
 grid.yaxis()
 PlotFaces(VE)
@@ -219,7 +222,7 @@ VD4
 @
 
 \begin{figure}[H]\begin{center}
-<<shoVD4b,fig=TRUE>>=
+<<shoVD4bz,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-7,7),c(-5,10))
 grid.xaxis()
@@ -328,7 +331,7 @@ VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
 @
 \begin{figure}[H]\begin{center}
 
-<<shoVDC12b,fig=TRUE>>=
+<<shoVDC12bq,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis()
@@ -361,7 +364,19 @@ r <- rep(r,3)
 	TM <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
 .validateDrawing(TM)
 @
-\section{Non overlapping circles}
+
+\begin{figure}[H]\begin{center}
+<<shoVDCs3,fig=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-1.5,1.5),c(-1.5,1.5))
+grid.xaxis()
+grid.yaxis()
+PlotSetBoundaries(TM);PlotNodes(TM)
+shoar(TM);
+@
+ \end{center}\end{figure}
+
+\subsection{Non overlapping circles}
 
 <<noc>>=
 centre.xy <- c(0,-2)
@@ -372,33 +387,36 @@ VDC3 <- newTissueFromCircle(c(0,-.5),radius=1,Set=3)
 .validateDrawing(TN2)
 @
 
+\begin{figure}[H]\begin{center}
+<<shoVDCs3,fig=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-5,5),c(-5,5))
+grid.xaxis()
+grid.yaxis()
+PlotSetBoundaries(TN2);PlotNodes(TN2)
+shoar(TN2);
+@
+ \end{center}\end{figure}
 
+\subsection{Example of bug 528}
 <<nocbug>>=
 centre.xy <- c(0,-2)
 VDC1b <- newTissueFromCircle(centre.xy,radius=2,Set=1,nodes=4)
 VDC2b <- newTissueFromCircle(centre.xy+c(0,3),radius=1,Set=2)
 TN2b <- (addSetToDrawing(VDC1b,VDC2b))
-try(.validateDrawing(TN2b))
+TN2b
+(.validateDrawing(TN2b))
 @
 
 \begin{figure}[H]\begin{center}
-
 <<shoVDC12nocb,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-5,5))
 grid.xaxis()
 grid.yaxis()
-shoar <- function(TN2) {for (ix in 1:length(TN2@edgeList)) {xy <- .edge.to.xy(TN2@edgeList[[ix]]); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())}}
-#shoar(TN2)
-#PlotFaces(TN2);PlotSetBoundaries(TN2);PlotNodes(TN2)
 PlotSetBoundaries(VDC1b);PlotNodes(VDC1b)
 PlotSetBoundaries(VDC2b);PlotNodes(VDC2b)
-#PlotSetBoundaries(VDC3);PlotNodes(VDC3)
-shoar(VDC1);shoar(VDC2);shoar(VDC3)
-
-#.PlotFaceNames.TissueDrawing (TN2)
-PlotNodes(TN2)
-
+shoar(VDC1b);shoar(VDC2b)
 @
  \end{center}\end{figure}
 
@@ -591,8 +609,7 @@ PlotFaces(VDI)
 PlotSetBoundaries(VDI)
 .PlotFaceNames.TissueDrawing (VDI)
 PlotNodes(VDI)
-lapply(VDI@edgeList,function(lh){xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())})
-
+shoar(VDI)
 @
  \end{center}\end{figure}
 
@@ -761,6 +778,7 @@ PlotNodes(TM3)
  \end{center}\end{figure}
 
 \section{Three circles}
+\subsection{Canonical}
 <<circ33>>=
 r <- 0.6; d <- 0.4;angles <- pi/2-c( 0, 2*pi/3, 4 * pi/3)
 x <- d*cos(angles)
@@ -777,7 +795,7 @@ centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
 
 <<shoVDtasng4,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-3,3),c(-3,3))
+makevp.eqsc(c(-1.5,1.5),c(-1.5,1.5))
 grid.xaxis()
 grid.yaxis()
 PlotFaces(TM3)
@@ -788,7 +806,7 @@ PlotNodes(TM3)
 @
  \end{center}\end{figure}
 
-\section{Three circles}
+\section{One tangent point}
 <<circ33a>>=
 r <- c( 1.261566 ,0.977205, 1.492705)
 x <- c(0.000000,  1.350138 ,-1.086542)
@@ -832,7 +850,7 @@ x <- c(0.000000,  1.384666, -1.028597 )
 @
 \begin{figure}[H]\begin{center}
 
-<<shoVDtasng4a,fig=TRUE>>=
+<<shoVDtasng4b,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis();grid.yaxis()
@@ -1188,7 +1206,7 @@ cat(R.version.string)
 \hline
 \end{tabular}
 
-\bibliographystyle{plain}
-%\bibliography{Venn}
+%\bibliographystyle{plain}
+%\bibliography{./Venn}
 
 \end{document}
