@@ -47,7 +47,7 @@ library(Vennerable)
  
 @
 
-Edwards CITE starts by constructing Venn sets on a sphere and then projecting onto the plane.
+Edwards \cite{edwards:2004} starts by constructing Venn sets on a sphere and then projecting onto the plane.
 On the sphere we use polar coordinates with longitude $\theta$ and latitude $\phi$. Arc distance
 from the equator is $s$ and height above the equatorial plane is $h$:
 \begin{eqnarray*}
@@ -200,6 +200,6 @@ plot(V8,type="battle",show=list(SetLabels=FALSE,FaceText="",Faces=TRUE))
 
 @
 \bibliographystyle{plain}
-%\bibliography{Venn}
+\bibliography{./Venn}
 
 \end{document}
