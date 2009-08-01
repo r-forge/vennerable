@@ -1362,9 +1362,15 @@ injectEdge <- function(drawing,newEdgeList,inFaceName,set2Name,addToList=TRUE) {
 			
 	# using the reverse edge keeps FROM to TO, then returns with the new edge	
 	if(!isEncircled) {
-		f2start = fromix
-		f2end = toix
-		new2 = c(oldFace2[ f2start:(f2end-1)],reverseEdgeNames)
+		if (fromix==toix) {
+			f2start <- fromix
+			f2end <- fromix+length(oldFace)-1
+		} else {
+			f2start <- fromix
+			f2end <- toix - 1
+		}
+		stopifnot(f2start*f2end!=0)
+		new2 = c(oldFace2[ f2start:f2end],reverseEdgeNames)
 	} else {
 		new2 <- reverseEdgeNames
 	}
@@ -1484,9 +1490,6 @@ injectPoints <- function(drawing,edgeName,newPoints) {
 
 
 addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
-	if (missing(set2Name)) {
-		set2Name <-(drawing2@setList[[1]])
-	}
 		
 
 	# ensure no clash of face names
@@ -1524,10 +1527,26 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	face2IntersectionPoints <- intersect(face2Points,intersectionPoints)
 
 	if (length(face2IntersectionPoints)==0) {
-		#must be inside one of the faces or outside them all
-		#either way can add the new face unchanged
+		new1 <- .addNonintersectingFace(new1,drawing2,tempface2Name) 
+		if (!inherits(new1,"TissueDrawing")) { return(NA) } # when we can't build an invisible edge joining the two faces
+	} else { 
+		new1 <- .addIntersectingFace(new1,new2,tempface2Name,face2IntersectionPoints)
+	} 
+	new1 <- .merge.faces.invisibly.split(new1)
+
+	if (remove.points) { 
+		new1 <- remove.nonintersectionpoints(new1)
+	}
+	new1
+
+
+}
+
+.addNonintersectingFace <- function(new1,drawing2,tempface2Name) {
+	#must be inside one of the faces or outside them all
+	#either way can add the new face unchanged
 		
-		res <- addFace(drawing=new1,faceName=tempface2Name,faceSignature="dummy",face=getFace(drawing2,tempface2Name))
+	res <- addFace(drawing=new1,faceName=tempface2Name,faceSignature="dummy",face=getFace(drawing2,tempface2Name))
 		new1 <- res$drawing; tempface2Name<- res$faceName
 		aPoint <- drawing2@nodeList[[1]]
 		outerFaceName <- ""
@@ -1574,13 +1593,15 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 		new1 <- renameFaces(new1,oldFaceNames,faceNames)
 		new1 <- updateSignature(new1,faceNames[notInvolved],"0")
 		new1 <- updateSignature(new1,face2Name,"1")
+	new1
+}
 
-	} else { #intersections
-		# for each intersection point there is a (set of) edges of face2 to the next intersection 
-		# point that we need to add as a (multiple) edge
-		# 
-		faceEdgeList <- .SplitFaceAtintersections(new2,tempface2Name,face2IntersectionPoints)
-
+.addIntersectingFace <- function(new1,new2,tempface2Name,face2IntersectionPoints) {
+	# for each intersection point there is a (set of) edges of face2 to the next intersection 
+	# point that we need to add as a (multiple) edge
+	# 
+	faceEdgeList <- .SplitFaceAtintersections(new2,tempface2Name,face2IntersectionPoints)
+	set2Name  <- names(new2@setList)[1]
 	
 	# now each element of faceEdgeList is a set of edges from one intersection point to another
 	# if we had edges duplicated between drawing1 and 2, dont need to add them in ( I think)
@@ -1612,19 +1633,8 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 		new1 <- renameFaces(new1,faceName,newFaceName)
 		new1 <- updateSignature(new1,newFaceName,suffix)
 	}
-	} # else intersections
 	new1
-
-	new1 <- .merge.faces.invisibly.split(new1)
-
-	if (remove.points) { 
-		new1 <- remove.nonintersectionpoints(new1)
-	}
-	new1
-
-
 }
-
 
 .SplitFaceAtintersections <- function(new2,tempface2Name,face2IntersectionPoints) {
 	face2Points <- .points.of.face(drawing=new2,tempface2Name)
