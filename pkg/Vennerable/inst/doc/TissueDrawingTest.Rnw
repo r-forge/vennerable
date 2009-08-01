@@ -7,7 +7,7 @@
 makeme <- function() {
 	library(weaver)
 	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
-	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=TRUE)
+	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
 }
 makeme()
 @
@@ -16,7 +16,6 @@ makeme()
 % $Author$
 % $Date$
 %
-% $Log: Vennville.Rnw,v $
 
 \documentclass[a4paper]{article}
 
@@ -1206,7 +1205,8 @@ cat(R.version.string)
 \hline
 \end{tabular}
 
-%\bibliographystyle{plain}
-%\bibliography{./Venn}
+\cite{edwards:2004}
+\bibliographystyle{plain}
+\bibliography{./Venn}
 
 \end{document}
