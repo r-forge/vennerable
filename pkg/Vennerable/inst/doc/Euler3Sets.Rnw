@@ -113,6 +113,8 @@ represented
 print(xtable(Ehave,digits=0),size="small"
 )
 @
-
+\cite{edwards:2004}
+\bibliographystyle{plain}
+\bibliography{./Venn}
 \end{document}
 
