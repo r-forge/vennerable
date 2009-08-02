@@ -817,7 +817,7 @@ Vempty4 <- VennFromSets( setList[c(9,5,6)])
 
 \begin{figure}[H]\begin{center}
 <<pv3wempty,fig=TRUE>>=
-showe <- list(FaceText="elements",Faces=FALSE)
+showe <- list(FaceText="elements",Faces=FALSE,DarkMatter=FALSE)
 grid.newpage()
 	pushViewport(viewport(layout=grid.layout(2,2)))
 	pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))

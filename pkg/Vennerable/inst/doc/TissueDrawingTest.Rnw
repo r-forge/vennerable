@@ -49,7 +49,14 @@ library(Vennerable)
 
 <<loadmore,echo=FALSE>>=
 options(width=80)
-shoar <- function(VDI) {lapply(VDI@edgeList,function(lh){xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())})}
+shoar <- function(VDI) {
+	res <- lapply(VDI@edgeList,function(lh){
+		xy <- .edge.to.xy(lh);
+	      grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
+		}
+	)
+	invisible(res)
+}
 @
 
 \tableofcontents
@@ -805,7 +812,7 @@ PlotNodes(TM3)
 @
  \end{center}\end{figure}
 
-\section{One tangent point}
+\subsection{One tangent point}
 <<circ33a>>=
 r <- c( 1.261566 ,0.977205, 1.492705)
 x <- c(0.000000,  1.350138 ,-1.086542)
@@ -824,28 +831,28 @@ grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis()
 grid.yaxis()
-PlotFaces(TM3)
-PlotSetBoundaries(VDC1);PlotSetBoundaries(VDC2);
-PlotNodes(VDC1);PlotNodes(VDC2);
-.PlotFaceNames.TissueDrawing (TM3)
-PlotNodes(TM3)
-
+PlotFaces(TM)
+PlotSetBoundaries(VDC1);PlotSetBoundaries(VDC2);PlotSetBoundaries(VDC3);
+#PlotNodes(VDC1);PlotNodes(VDC2);PlotNodes(VDC3);
+.PlotFaceNames.TissueDrawing (TM)
+PlotNodes(TM)
+shoar(TM)
 @
  \end{center}\end{figure}
 
 
-\section{Three circles}
+\subsection{Three circles one tangent}
 <<circ33b>>=
 r <- c(  1.492705, 0.977205, 1.128379)
 x <- c(0.000000,  1.384666, -1.028597 )
  y <- c(1.49270533, -0.55257134, -0.02662434 )
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=6); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=2); 
-	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
-	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM3 <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
-	TV3 <- .merge.faces.invisibly.split(TM3)
+	VDC1b <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=6); 
+	VDC2b <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=2); 
+	TMb <- addSetToDrawing (drawing1=VDC1b,drawing2=VDC2b,set2Name="Set2")
+	VDC3b <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM3b <- addSetToDrawing (drawing1=TMb,drawing2=VDC3b,set2Name="Set3")
+	TV3b <- .merge.faces.invisibly.split(TM3b)
 @
 \begin{figure}[H]\begin{center}
 
@@ -853,14 +860,9 @@ x <- c(0.000000,  1.384666, -1.028597 )
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis();grid.yaxis()
-PlotFaces(TV3)
-PlotSetBoundaries(TV3)
-#PlotSetBoundaries(VDC3)
-#shoar(TM3)
-
-#PlotNodes(VDC1);PlotNodes(VDC2);
-#.PlotFaceNames.TissueDrawing (TM3)
-PlotNodes(TM3)
+PlotFaces(TV3b)
+PlotSetBoundaries(TV3b)
+PlotNodes(TV3b)
 
 @
  \end{center}\end{figure}

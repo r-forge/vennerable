@@ -193,7 +193,7 @@ SetColours <- function(drawing ) {
 
 PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 	show.default <- list(universe=TRUE,Sets=TRUE,SetLabels=TRUE,
-		dark.matter=FALSE,
+		DarkMatter=FALSE,
 		Faces=TRUE,
 		FaceText="weight")
 	unshown <- names(show)[! names(show) %in% names(show.default)]
@@ -216,6 +216,9 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 	if(show.default$universe) {
 		PlotUniverse(C3)
 	}
+	if(show.default$DarkMatter) {
+		PlotDarkMatter(C3)
+	}
 	if (show.default$Faces) {
 		PlotFaces(C3,gp=gp[["Face"]])
 	}
@@ -229,7 +232,7 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 	if (length(show.default$FaceText)>0) {
 		PlotIntersectionText(C3,element.plot=show.default$FaceText,
 			gp=gp[["FaceText"]],
-			show.dark.matter=show.default$dark.matter)	
+			show.dark.matter=show.default$DarkMatter)	
 	}
 
 	UpViewports()	
@@ -337,6 +340,10 @@ makevp.eqsc <- function(xrange,yrange) {
 	pushViewport(viewport(name="Vennvp",layout.pos.row=1,layout.pos.col=1,xscale=xrange,yscale=yrange))
 	}
 
-
-
+PlotDarkMatter <- function(VD) {
+	ur <- UniverseRange(VD)
+	grey <- brewer.pal(8,"Greys")[2]
+	grid.polygon(x=ur[c(1,1,2,2),1],y=ur[c(1,2,2,1),2],gp=gpar(fill=grey))
+	.PlotFace.TissueDrawing(VD,"DarkMatter",gp=gpar(fill="white"),doDarkMatter=TRUE)
+	}
 

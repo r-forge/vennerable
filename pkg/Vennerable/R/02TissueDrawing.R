@@ -979,9 +979,9 @@ faceAreas <- function(drawing) {
 	centroid.xy <- matrix(c(cx,cy),ncol=2)
 }
 
-.PlotFace.TissueDrawing <- function(drawing,faceName,dx=0.05,gp=gpar()) {
+.PlotFace.TissueDrawing <- function(drawing,faceName,dx=0.05,gp=gpar(),doDarkMatter=FALSE) {
 #cat(faceName,"\n")
-	if (faceName=="DarkMatter") {
+	if (!doDarkMatter & faceName=="DarkMatter") {
 		return()
 	} 
 	all.xy <- .face.toxy(drawing,faceName,dx=dx)
@@ -1324,6 +1324,9 @@ injectEdge <- function(drawing,newEdgeList,inFaceName,set2Name,addToList=TRUE) {
 			# so further subdivision takes us back out of the Set
 			newFaceSigP <- inFaceSignature 
 			newFaceSigM <- paste(substr(inFaceSignature ,1,nSets-1),"0",sep="")
+	#		if (newFaceSigM==paste(rep("0",nSets),collapse="")) {
+	#			newFaceSigM <- "DarkMatter"
+	#		}
 		}
 	
 	}
@@ -2006,9 +2009,7 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
 		# then negative ones
 		if (fedges[1]==inneg){ fedges <- fedges[c(2:length(fedges),1)] }
 		revName <- paste("-",newEdgeName,sep="")
-#if (fname=="10") {cat(sprintf("(%s): %s, %s -> %s\n",paste(fedges,collapse=","),inneg,outneg,revName))}
 		fedges <- spliceinstead(fedges,c(outneg,inneg),revName)
-#if (fname=="10") {cat(sprintf("(%s)\n",paste(fedges,collapse=",")))}
 		drawing@faceList[[fname]] <- fedges
 	}
 	drawing@nodeList[[inedge@to]] <- NULL
@@ -2016,7 +2017,10 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
 }
 
 .merge.faces.invisibly.split <- function(diagram) {
-	fsigs <- data.frame(cbind(Name=unlist(.faceNames(diagram)),Signature=unlist(.faceSignatures(diagram))),stringsAsFactors=FALSE);rownames(fsigs)<- 1:nrow(fsigs)
+	fsigs <- data.frame(cbind(Name=unlist(.faceNames(diagram)),Signature=unlist(.faceSignatures(diagram))),stringsAsFactors=FALSE);
+	rownames(fsigs)<- 1:nrow(fsigs)
+	nSets <- unique(nchar(setdiff(fsigs$Signature,"DarkMatter")))
+	fsigs$Signature[fsigs$Signature==paste(rep("0",nSets),collapse="")] <- "DarkMatter"
 	w <- lapply(split(fsigs$Name,fsigs$Signature),length)
 	w <- w[w>1]
 	if (length(w)>0) {
@@ -2034,7 +2038,6 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
 			firstVisibleIx <- min(which(faceVisible1))
 			firstVisibleFrom <- faceEdges1[[firstVisibleIx ]]@from
 			diagram<- .startFaceAtPoint(diagram,wnames[1],firstVisibleFrom )
-			#diagram<- .startFaceAtPoint(diagram,wnames[2],firstVisibleFrom )
 			faceEdges1 <- .face.to.faceEdges(diagram,wnames[1])
 			faceVisible1 <- sapply(faceEdges1,function(x)x@visible)	
 			faceEdges2 <- .face.to.faceEdges(diagram,wnames[2])
