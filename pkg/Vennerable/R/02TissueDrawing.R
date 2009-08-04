@@ -1588,7 +1588,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 		notInvolved <-  !faceNames %in% c(tempface2Name,"DarkMatter")
 		faceNames[ notInvolved ] <- paste(faceNames[ notInvolved ],"0",sep="")
 		if (outerFaceName=="DarkMatter") {
-			face2Name <- paste(rep("0",length(new1@setList)-1),"1",sep="")
+			face2Name <- paste(c(rep("0",length(new1@setList)-1),"1"),collapse="")
 		} else {
 			face2Name <- paste(outerFaceName,"1",sep="")
 		}
