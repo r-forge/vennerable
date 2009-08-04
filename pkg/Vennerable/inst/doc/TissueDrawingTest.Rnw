@@ -868,6 +868,33 @@ PlotNodes(TV3b)
  \end{center}\end{figure}
 
 
+\subsection{April May June}
+<<circ33c>>=
+r <- c(    1.261566261010080, 0.977205023805840, 1.128379167095513)
+x <- c(  0.000000000000000 , 1.194972714052796 ,-1.194972714052796 )
+ y <- c( 1.261566261010080, -0.808187193387839, -0.808187193387839 )
+	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
+	VDC1c <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=4); 
+	VDC2c <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=4); 
+	TMc <- addSetToDrawing (drawing1=VDC1c,drawing2=VDC2c,set2Name="Set2")
+	VDC3c <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM3c <- addSetToDrawing (drawing1=TMc,drawing2=VDC3c,set2Name="Set3")
+	TV3c <- .merge.faces.invisibly.split(TM3c)
+@
+\begin{figure}[H]\begin{center}
+
+<<shoVDtasng4c,fig=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-3,3),c(-3,3))
+grid.xaxis();grid.yaxis()
+PlotFaces(TV3c)
+PlotSetBoundaries(TV3c)
+PlotNodes(TV3c)
+shoar(TV3c)
+@
+ \end{center}\end{figure}
+
+
 \section{Triangles}
 <<>>=
 
