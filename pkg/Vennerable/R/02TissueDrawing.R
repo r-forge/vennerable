@@ -588,18 +588,9 @@ setMethod(".midpoint",c("VDedgeLines"),function(edge){
 	midmean
 })
 setMethod(".midpoint",c("VDedgeSector"),function(edge){
-	# could calculate midpoint directly
-	edgexy <- .edge.to.xy(edge)
-	if (nrow(edgexy)%%2 == 1) {
-		midn <- (nrow(edgexy)+1)/2 
-		midn <- c(midn,midn) 
-	}	else {
-		midn <- nrow(edgexy)/2
-		midn <- c(midn,midn+1)
-	}
-	midx <- edgexy[midn,]
-	midmean <- matrix(apply(midx,2,mean),ncol=2)
-	midmean
+	theta <- (edge@fromTheta+edge@toTheta)/2
+	point.xy <- .theta.to.point.xy(theta,r=edge@radius,centre=edge@centre)
+	point.xy
 })
 
 ##############################################################################
@@ -633,7 +624,7 @@ updateSignature <- function(drawing,faceNames,suffix) {
 	for (faceName in faceNames) {
 		sig <- drawing@faceSignature[[faceName]]
 		if (sig=="DarkMatter" & suffix =="1") {
-			sig <-  paste(rep("0",length(drawing@setList)-1),"1",sep="")
+			sig <-  paste(c(rep("0",length(drawing@setList)-1),"1"),collapse="")
 		} else {
 			sig <- paste(sig,suffix,sep="")
 		}
