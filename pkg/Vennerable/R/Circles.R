@@ -78,6 +78,7 @@ compute.C2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 	wAB <- as.numeric(Weight["11"])
 
 	inneroff <- 1 # set = 2 to put inner circles completely inside
+	outeroff <- 1.01 # =1 to have exact adjacency
 	r1 <- sqrt( (wAb+wAB)/pi)
 	r2 <- sqrt( (waB+wAB)/pi) # area proportional to weights
 
@@ -94,7 +95,7 @@ compute.C2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 			d <- (r1-r2)+0.1*r1
 		}
 	} else if (wAB==0) {
-		d <- inneroff *  (r1+r2)  # no intersection
+		d <- outeroff *  (r1+r2)  # no intersection
 		if (!doEuler) {
 			d <- 0.95 * d
 		}

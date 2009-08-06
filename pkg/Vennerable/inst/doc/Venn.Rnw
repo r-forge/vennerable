@@ -5,9 +5,9 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	library(weaver)
 	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
-	Sweave(driver="weaver","Venn.Rnw",stylepath=FALSE,use.cache=FALSE)
+	#library(weaver);	Sweave(driver="weaver","Venn.Rnw",stylepath=FALSE,use.cache=FALSE)
+	Sweave("Venn.Rnw",stylepath=FALSE)
 }
 makeme()
 @

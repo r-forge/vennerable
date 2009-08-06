@@ -62,13 +62,28 @@ shoar <- function(VDI) {
 \tableofcontents
 \newpage
 
+\section{The VDedgeDrawn object}
+A \texttt{VDedgeDrawn} object encodes a description of an edge. It has two subclasses, representing polygons and circular segments.
+Edges are unique. If two set boundaries overlap they are described by a common edge on the overlap. 
+ The orientation of an edge is important. An edge whose name starts with a '-' is
+interpreted as the reversal of the edge with the same name without the '-' (and only the latter is stored in the diagram's list of edges).
+Edge names are unique.
 
-\section{The VDedgeSector object}
+Most edges form the boundaries of both Faces and Sets. The exception is invisible edges which are added between otherwise disjoint sets 
+to ensure the diagram is not disjoint.
 
-A sector is a segment of a circle, defined by two points, together with the convention that a right-handed sector goes clockwise.
+
+
+\subsection{The VDedgeSector object}
+A \texttt{VDedgeSector} object inherits from a \texttt{VDedgeDrawn} one.
+A sector is a segment of a circle, defined by two points, 
+together with the convention that a right-handed sector goes clockwise (Figure \ref{fig:vds}).
+Angles are all interpreted in the same way as \texttt{acos2} ie clockwise from the line $y=0$.
+The angles of the beginning $\theta_f$ and end $\theta_t$ of the segment obey $2\pi\geq \theta_f >  0$ and $\theta_f>\theta_t>-2*pi$.
+
 
 \begin{figure}[H]\begin{center}
-<<defVDedgeSector,fig=TRUE>>=
+<<defVDedgeSector,fig=TRUE,echo=FALSE>>=
 nodeList <- list(p1=matrix(1:2,ncol=2),p2=matrix(2:3,ncol=2))
 centre = c(-1,5)
 fromTheta <- .point.xy.to.theta(nodeList[["p1"]],centre)
@@ -82,7 +97,7 @@ lh <-  .normalise.sector(lh)
 VD1 <- new("TissueDrawing",nodeList=nodeList)
 
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-7,7),c(-5,10))
+makevp.eqsc(c(-6,4),c(0,9))
 grid.xaxis()
 grid.yaxis()
 PlotNodes(VD1)
@@ -90,10 +105,72 @@ xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arr
 lh@hand <- -1
 xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow(),gp=gpar(col="red"))
 @
+\caption{In black, a right-handed edge sector, and in red a left-handed one}
+\label{fig:vds}
+\end{center}\end{figure}
+\subsection{The VDedgeLines object}
+A \texttt{VDedgeSector} object inherits from a \texttt{VDedgeDrawn} one and describes polygonal edges.
+
+\subsection{Edge methods}
+Edges can be shown, split at a point, converted to $xy$ coordinates, or reversed. It can have a 'midpoint' found on its interior.
+A point can be tested to see if it lies on an edge. 
+Pairs of edges can be tested for identity, joined together (not much used and barely tested), and crucially
+can be tested for intersection.
+
+
+
+\section{Faces}
+Individual faces within a diagram are stored as a vector of edge names describing an oriented traversal of the face.
+
+\begin{figure}[H]\begin{center}
+<<shoFace,fig=TRUE,echo=FALSE>>=
+centre1 <- c(0,0)
+nodeList <- list(p1=matrix(c(-1,0),ncol=2),p2=matrix(c(1,0),ncol=2))
+fromTheta1 <- .point.xy.to.theta(nodeList[["p1"]],centre1)
+toTheta1 <- .point.xy.to.theta(nodeList[["p2"]],centre1)
+lh1 <- newEdgeSector(centre=centre1 ,hand=1,from="p1",to="p2",fromTheta=fromTheta1,toTheta=toTheta1,radius=1)
+centre2 <- c(0,-.1)
+fromTheta2 <- .point.xy.to.theta(nodeList[["p2"]],centre2)
+toTheta2 <- .point.xy.to.theta(nodeList[["p1"]],centre2)
+radius2 <- sqrt(sum((nodeList[["p1"]]-centre2)^2))
+lh2 <- newEdgeSector(centre=centre2 ,hand=-1,from="p2",to="p1",fromTheta=fromTheta2,toTheta=toTheta2,radius=radius2)
+lh2 <-  .normalise.sector(lh2)
+edgeList <- list(lh1=lh1,lh2=lh2)
+faceList <- list("1"=c("lh1","lh2"))
+setList <- faceList
+faceSignature <- list("1"="1")
+
+VD1 <- new("TissueDrawing",nodeList=nodeList,edgeList=edgeList,faceList=faceList,setList=setList,faceSignature=faceSignature)
+grid.newpage();
+makevp.eqsc(c(-2,2),c(-2,2))
+PlotNodes(VD1)
+PlotSetBoundaries(VD1)
+# centroid is not in face
+aPoint <- .find.point.within.face(drawing=VD1,faceName="1")
+grid.points(x=aPoint[1],y=aPoint[2],default.units="native",pch=4)
+@
+\caption{A face which doesn't contain its centroid}. 
+\label{fig:vds}
 \end{center}\end{figure}
 
-We can also split VDedgeSectors
+\section{Joining disjoint faces}
 
+<<defjoint>>=
+VD2 <- compute.Venn(Venn(n=2))
+VD3 <- newTissueFromCircle (centre.xy =c(2,0), radius=.6,Set=3)
+VD23 <- VD2
+VD23@faceList <- c(VD2@faceList,VD3@faceList)
+VD23@edgeList <- c(VD2@edgeList,VD3@edgeList)
+VD23@setList <- c(VD2@setList,VD3@setList)
+grid.newpage()
+pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-2,3),c(-2,2));grid.xaxis();grid.yaxis()
+PlotSetBoundaries(VD23)
+
+drawing <- VD23
+innerFaceName <- "1"
+.create.edge.joining.faces(drawing,"DarkMatter","1")
+@
 \section{The TissueDrawing object}
 
 First we test constucting them from scratch.
@@ -363,8 +440,8 @@ x <- d*cos(angles)
 y <- d*sin(angles)
 r <- rep(r,3)
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=3); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=3); 
+	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
 	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
 	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
 	TM <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
@@ -386,8 +463,8 @@ shoar(TM);
 
 <<noc>>=
 centre.xy <- c(0,-2)
-VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1,nodes=4)
-VDC2 <- newTissueFromCircle(centre.xy+c(0,3.5),radius=1,Set=2,nodes=4)
+VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC2 <- newTissueFromCircle(centre.xy+c(0,3.5),radius=1,Set=2)
 TN2 <- addSetToDrawing(VDC1,VDC2)
 VDC3 <- newTissueFromCircle(c(0,-.5),radius=1,Set=3)
 .validateDrawing(TN2)
@@ -407,7 +484,7 @@ shoar(TN2);
 \subsection{Example of bug 528}
 <<nocbug>>=
 centre.xy <- c(0,-2)
-VDC1b <- newTissueFromCircle(centre.xy,radius=2,Set=1,nodes=4)
+VDC1b <- newTissueFromCircle(centre.xy,radius=2,Set=1)
 VDC2b <- newTissueFromCircle(centre.xy+c(0,3),radius=1,Set=2)
 TN2b <- (addSetToDrawing(VDC1b,VDC2b))
 TN2b
@@ -420,9 +497,9 @@ grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-5,5))
 grid.xaxis()
 grid.yaxis()
-PlotSetBoundaries(VDC1b);PlotNodes(VDC1b)
-PlotSetBoundaries(VDC2b);PlotNodes(VDC2b)
-shoar(VDC1b);shoar(VDC2b)
+PlotSetBoundaries(TN2b)
+PlotNodes(TN2b)
+shoar(TN2b)
 @
  \end{center}\end{figure}
 
@@ -639,8 +716,7 @@ PlotFaces(VDO)
 PlotSetBoundaries(VDO)
 .PlotFaceNames.TissueDrawing (VDO)
 PlotNodes(VDO)
-lapply(VDO@edgeList,function(lh){xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())})
-
+shoar(VDO)
 @
  \end{center}\end{figure}
 
@@ -818,8 +894,8 @@ r <- c( 1.261566 ,0.977205, 1.492705)
 x <- c(0.000000,  1.350138 ,-1.086542)
 y <- c(1.2615663, -0.8066661, -0.4028718)
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=5); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=5); 
+	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
 	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
 	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
 	TM <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
@@ -840,32 +916,27 @@ shoar(TM)
 @
  \end{center}\end{figure}
 
-
-\subsection{Three circles one tangent}
-<<circ33b>>=
+\subsection{Two circles tangent numerics}
+<<circ323b>>=
 r <- c(  1.492705, 0.977205, 1.128379)
 x <- c(0.000000,  1.384666, -1.028597 )
  y <- c(1.49270533, -0.55257134, -0.02662434 )
-	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1b <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=6); 
-	VDC2b <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=2); 
-	TMb <- addSetToDrawing (drawing1=VDC1b,drawing2=VDC2b,set2Name="Set2")
-	VDC3b <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM3b <- addSetToDrawing (drawing1=TMb,drawing2=VDC3b,set2Name="Set3")
-	TV3b <- .merge.faces.invisibly.split(TM3b)
+centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
+VDC12b <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+VDC22b <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+TM2b <- try( addSetToDrawing (drawing1=VDC12b,drawing2=VDC22b,set2Name="Set2"))
 @
 \begin{figure}[H]\begin{center}
 
-<<shoVDtasng4b,fig=TRUE>>=
+<<shoVD2tasng4b,fig=TRUE>>=
 grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis();grid.yaxis()
-PlotFaces(TV3b)
-PlotSetBoundaries(TV3b)
-PlotNodes(TV3b)
-
+PlotSetBoundaries(VDC1b); PlotSetBoundaries(VDC2b)
 @
+\caption{Numerical difficulties cause a bug here}
  \end{center}\end{figure}
+
 
 
 \subsection{April May June}
@@ -874,8 +945,8 @@ r <- c(    1.261566261010080, 0.977205023805840, 1.128379167095513)
 x <- c(  0.000000000000000 , 1.194972714052796 ,-1.194972714052796 )
  y <- c( 1.261566261010080, -0.808187193387839, -0.808187193387839 )
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1c <- newTissueFromCircle(centres[1,],radius=r[1],Set=1,nodes=4); 
-	VDC2c <- newTissueFromCircle(centres[2,],radius=r[2],Set=2,nodes=4); 
+	VDC1c <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2c <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
 	TMc <- addSetToDrawing (drawing1=VDC1c,drawing2=VDC2c,set2Name="Set2")
 	VDC3c <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
 	TM3c <- addSetToDrawing (drawing1=TMc,drawing2=VDC3c,set2Name="Set3")

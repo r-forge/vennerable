@@ -1044,7 +1044,8 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 		drawing <- renameFaces(drawing,"DarkMatter",faceName)
 		# has the effect of treating as an ordinary face
 	}
-	faceCentroid <- .face.centroid(drawing,faceName=faceName);rownames(faceCentroid)<-"centroid"
+	faceCentroid <- .face.centroid(drawing,faceName=faceName);
+	rownames(faceCentroid)<-"centroid"
 	if (.is.point.within.face(drawing,faceName,faceCentroid)) {
 		return(faceCentroid)
 	}
@@ -1052,29 +1053,13 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	amidpoint <- .find.point.on.face(drawing,faceName)
 
 	# create a line from the centroid to past that point, and call it a chord
-	# names pc and pmid not used
+	chord.from.xy <- faceCentroid 
 	grad <- faceCentroid-amidpoint; grad <- grad/sqrt(sum(grad^2))
-	chord <- newEdgeLines(from="pc",to="pmid",xy=rbind(faceCentroid,amidpoint- 2*grad))
-
-	foundList <- list()
+	chord.to.xy <- amidpoint- 2*grad
 	
-	for ( edgeName in .faceEdgeNames(drawing,faceName,unsigned=TRUE) ) {
-		faceEdge <- drawing@edgeList[[edgeName]]
-		found <- .findIntersection(chord,faceEdge)
-		foundList[[edgeName]] <- found
-	}	
-	# now we have a collection of points at which the chord crosses the face
-	ipoints <- do.call(rbind,lapply(names(foundList),
-		function(x){y<-foundList[[x]];if(nrow(y)>0){rownames(y)<-paste(x,seq_len(nrow(y)),sep=";")};y})
-		)
-	# we want to order them along the line of the chord
-	npoints <- rbind(ipoints,faceCentroid)
 
-	bottom <- npoints[npoints[,2]==min(npoints[,2]),,drop=FALSE]
-	bottomleft <- bottom[bottom[,1]==min(bottom[,1]),,drop=FALSE]
+	npoints <- .probe.chord.intersections(drawing,faceName,chord.from.xy,chord.to.xy)
 
-	dist <- (npoints[,1]-bottomleft[1])^2+(npoints[,2]-bottomleft[2])^2
-	npoints <- npoints[order(dist),]
 	cix <- which(rownames(npoints)=="centroid")	
 	if (cix-2 > 0) {
 		q1 <- npoints[cix-2,,drop=FALSE];
@@ -1536,59 +1521,175 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 
 }
 
-.addNonintersectingFace <- function(new1,drawing2,tempface2Name) {
+.addNonintersectingFace <- function(drawing1,drawing2,tempface2Name) {
+	# drawing2 contains a single face 
 	#must be inside one of the faces or outside them all
-	#either way can add the new face unchanged
-		
-	res <- addFace(drawing=new1,faceName=tempface2Name,faceSignature="dummy",face=getFace(drawing2,tempface2Name))
-		new1 <- res$drawing; tempface2Name<- res$faceName
-		aPoint <- drawing2@nodeList[[1]]
-		outerFaceName <- ""
-		for (faceName in .faceNames(new1)) {
-			if(.is.point.within.face(drawing=new1,faceName=faceName,point.xy=aPoint)) {
-				outerFaceName <- faceName
-				break
-			}
-		}
-#cat(sprintf("found in %s\n",outerFaceName))
-		new1 <- setSignature(new1,tempface2Name,.faceSignatures(new1)[[outerFaceName]])
+	#either way can add the new face unchanged to the faceList
+	
+	res <- addFace(drawing=drawing1,faceName=tempface2Name,faceSignature="dummy",face=getFace(drawing2,tempface2Name))
+	new1 <- res$drawing; tempface2Name<- res$faceName
 
-		# but then need to add invisible edges to join in to rest of drawing		
-		res <- .create.edge.joining.faces(drawing=new1,outerFaceName=outerFaceName ,innerFaceName=tempface2Name )
+	# then find which face it is within, first so we can set the signature correctly
+	aPoint <- .find.point.within.face(drawing2,tempface2Name)
+	outerFaceName <- ""
+	for (faceName in .faceNames(new1)) {
+		if(.is.point.within.face(drawing=new1,faceName=faceName,point.xy=aPoint)) {
+			outerFaceName <- faceName
+			break
+		}
+	}
+	new1 <- setSignature(new1,tempface2Name,.faceSignatures(new1)[[outerFaceName]])
+
+	# but then need to add invisible edges to join in to rest of drawing
+	res <- .create.edge.joining.faces(drawing=new1,outerFaceName=outerFaceName ,innerFaceName=tempface2Name )
 		if (!res$ok) { 
 			return(NA)
 		}
-		iedgeName <- res$edgeName; new1 <- res$drawing;
-		redgeName <- paste("-",iedgeName,sep="")
+	iedgeName <- res$edgeName; new1 <- res$drawing;
+	redgeName <- paste("-",iedgeName,sep="")
 		
-		# point to attach to (called outer because I imagined the face being inside, 
-		# but also works when inserting a new face into dark matter and this point 
-		outerPoint <-  new1@edgeList[[iedgeName ]]@from
-		innerPoint <- new1@edgeList[[iedgeName ]]@to
-		drawing2 <- .startFaceAtPoint(drawing2,tempface2Name,innerPoint)
-
-		newEdges <- c(iedgeName,getFace(drawing2,tempface2Name,reverse=TRUE),redgeName)
-		# find the edge going in to it
-		outerEdges <- .face.to.faceEdges(new1,outerFaceName)
-		edgetoPoint <- names(outerEdges)[min(which(sapply(outerEdges,function(edge)edge@to==outerPoint)))]
-		# normally when replacing edges we want to do it for both faces containing the edge,
-		#  but not in this case hence doReverse=FALSE
-		new1 <- spliceEdgeIntoFace (drawing=new1,faceName=outerFaceName,edgeName=edgetoPoint,edgeNames=c(edgetoPoint,newEdges),doReverse=TRUE) 
-		# now calculate the names
-		oldFaceNames <- .faceNames(new1); faceNames <- oldFaceNames
-		notInvolved <-  !faceNames %in% c(tempface2Name,"DarkMatter")
-		faceNames[ notInvolved ] <- paste(faceNames[ notInvolved ],"0",sep="")
-		if (outerFaceName=="DarkMatter") {
-			face2Name <- paste(c(rep("0",length(new1@setList)-1),"1"),collapse="")
-		} else {
-			face2Name <- paste(outerFaceName,"1",sep="")
-		}
-		faceNames[ faceNames ==tempface2Name] <- face2Name
-		new1 <- renameFaces(new1,oldFaceNames,faceNames)
-		new1 <- updateSignature(new1,faceNames[notInvolved],"0")
-		new1 <- updateSignature(new1,face2Name,"1")
+	# point to attach to (called outer because I imagined the face being inside, 
+	# but also works when inserting a new face into dark matter and this point 
+	outerPoint <-  new1@edgeList[[iedgeName ]]@from
+	innerPoint <- new1@edgeList[[iedgeName ]]@to
+	new1 <- .startFaceAtPoint(new1,tempface2Name,innerPoint)
+	newEdges <- c(iedgeName,getFace(new1,tempface2Name,reverse=TRUE),redgeName)
+	# find the edge going in to it
+	outerEdges <- .face.to.faceEdges(new1,outerFaceName)
+	edgetoPoint <- names(outerEdges)[min(which(sapply(outerEdges,function(edge)edge@to==outerPoint)))]
+	# normally when replacing edges we want to do it for both faces containing the edge,
+	#  but not in this case hence doReverse=FALSE
+	new1 <- spliceEdgeIntoFace (drawing=new1,faceName=outerFaceName,edgeName=edgetoPoint,edgeNames=c(edgetoPoint,newEdges),doReverse=TRUE) 
+	# now calculate the names
+	oldFaceNames <- .faceNames(new1); faceNames <- oldFaceNames
+	notInvolved <-  !faceNames %in% c(tempface2Name,"DarkMatter")
+	faceNames[ notInvolved ] <- paste(faceNames[ notInvolved ],"0",sep="")
+	if (outerFaceName=="DarkMatter") {
+		face2Name <- paste(c(rep("0",length(new1@setList)-1),"1"),collapse="")
+	} else {
+		face2Name <- paste(outerFaceName,"1",sep="")
+	}
+	faceNames[ faceNames ==tempface2Name] <- face2Name
+	new1 <- renameFaces(new1,oldFaceNames,faceNames)
+	new1 <- updateSignature(new1,faceNames[notInvolved],"0")
+	new1 <- updateSignature(new1,face2Name,"1")
 	new1
 }
+
+.find.point.in.diagram <- function(drawing,aPoint) {
+	xy <- do.call(rbind,drawing@nodeList)
+	dist <- (xy[,1]-aPoint[1])^2 + (xy[,2]-aPoint[2])^2
+	isEqual <- fequal(dist,0)
+	if (!any(isEqual)) { return(NA)}
+	if (length(which(isEqual))>1) stop("A third nonuique point")
+	pointName <- rownames(xy)[isEqual]
+	return(pointName)
+}
+
+.create.edge.joining.faces <- function(drawing,outerFaceName,innerFaceName) {
+	# if outerFaceName is DarkMatter, then we really want to connect any
+	# one of the other faces to innerFaceName, and the idea is to draw a line joining the centres of the two faces
+	# that must have at least one segment which joins (something connected to the first face) to (something connected to) the second face
+	# if outerFaceName is a regular face, (and then the innerFace is actually nested inside it, hence the names
+	# then a point on its boundary will do as well
+	# in practice the second face is always a single set though
+
+	if (outerFaceName=="DarkMatter") {
+		outerFaceForPoint <- setdiff(.faceNames(drawing),"DarkMatter")[1]
+		outerPoint <- .find.point.within.face(drawing,outerFaceForPoint )
+	} else {
+		outerFaceForPoint <- outerFaceName
+		outerPointName <- .points.of.face(drawing,outerFaceName)
+		outerPoint <- drawing@nodeList[[outerPointName]]
+	}
+	innerPoint <- .find.point.within.face(drawing,innerFaceName)
+	rownames(outerPoint) <- ".cejf"
+	
+	# find all the places it hits the 'inner' ie single set face 
+	innerpoints <- .probe.chord.intersections(drawing,innerFaceName,outerPoint ,innerPoint )
+	innerpoints <- innerpoints [rownames(innerpoints ) != ".cejf",,drop=FALSE]
+	# and all the points it hits things connected to the outer face, so have to look through all the other faces too
+	outerpoints <- matrix(nrow=0,ncol=2)
+	for (faceName in setdiff(.faceNames(drawing),c("DarkMatter",innerFaceName))) {
+		opoints <- 	.probe.chord.intersections(drawing,faceName ,outerPoint ,innerPoint )
+		outerpoints <- rbind(outerpoints,opoints )
+		outerpoints <- unique(outerpoints [rownames(outerpoints ) != ".cejf",,drop=FALSE])
+	}
+	# code the points by 1 or 2 depending on whether they are on the inner or outer faces
+	linepoints <- rbind(cbind(outerpoints,1),cbind(innerpoints,2))
+	dist <- (linepoints[,1]-outerPoint [1])^2+(linepoints[,2]-outerPoint [2])^2
+	# sort by distance from the outer set
+	linepoints <- linepoints[order(dist),,drop=FALSE]
+	lastOuter <- max(which(linepoints[,3]==1))
+	stopifnot(lastOuter < nrow(linepoints)) # because there should be at least one inner intersection
+	# now we have a point that will work..it may already be in the diagram but if not must inject it
+	op <- linepoints[lastOuter,1:2,drop=FALSE]
+	opName <- .find.point.in.diagram(drawing,op)
+	if (is.na(opName)) {
+		opEdge <- strsplit(rownames(op),";")[[1]][1]
+		nix <- .node.number.unused(drawing)
+		opName <- paste("e",nix,sep="")
+		rownames(op) <- opName 
+		drawing <- injectPoint(drawing,opEdge,op)
+	} else {
+		rownames(op) <- opName
+	}
+	ip <- linepoints[lastOuter+1,1:2,drop=FALSE]
+	ipName <- .find.point.in.diagram(drawing,ip)
+	if (is.na(ipName)) {
+		ipEdge <- strsplit(rownames(ip),";")[[1]][1]
+		nix <- .node.number.unused(drawing)
+		ipName <- paste("e",nix,sep="")
+		rownames(ip) <- ipName 
+		drawing <- injectPoint(drawing,ipEdge,ip)
+	} else {
+		rownames(ip) <- ipName
+	}
+
+	xy <- do.call(rbind,drawing@nodeList[c(opName,ipName)])
+	testEdge <- newEdgeLines(from=opName,to=ipName,xy=xy,visible=FALSE)	
+	stopifnot(!.internal.edge.drawing.intersection(drawing,testEdge)) 
+
+	edgeName <- paste(opName,ipName,"invisible",sep="|")
+	tel <- list(testEdge); names(tel) <- edgeName
+	drawing@edgeList <- c(drawing@edgeList,tel)
+	return(list(edgeName=edgeName,drawing=drawing,ok=TRUE))
+	
+}
+
+.probe.chord.intersections <- function(drawing,faceName,chord.from.xy,chord.to.xy)  {
+	# given two points, chord.from.xy outside the face, and a second point chord.to.xy,
+	# draw a line between the two, and see where the line intersects the face. 
+	# then arrange all of these intersection points in the order they appear in along the line,
+	# including the chord.from.xy point
+
+	# names pc and pmid not used
+	chord <- newEdgeLines(from="pc",to="pmid",xy=rbind(chord.from.xy,chord.to.xy))
+
+	foundList <- list()
+	
+	for ( edgeName in .faceEdgeNames(drawing,faceName,unsigned=TRUE) ) {
+		faceEdge <- drawing@edgeList[[edgeName]]
+		found <- .findIntersection(chord,faceEdge)
+		foundList[[edgeName]] <- found
+	}	
+	# now we have a collection of points at which the chord crosses the face
+	ipoints <- do.call(rbind,lapply(names(foundList),
+		function(x){y<-foundList[[x]];if(nrow(y)>0){rownames(y)<-paste(x,seq_len(nrow(y)),sep=";")};y})
+		)
+	# we want to order them along the line of the chord
+	npoints <- rbind(ipoints,chord.from.xy)
+
+	bottom <- npoints[npoints[,2]==min(npoints[,2]),,drop=FALSE]
+	bottomleft <- bottom[bottom[,1]==min(bottom[,1]),,drop=FALSE]
+
+	dist <- (npoints[,1]-bottomleft[1])^2+(npoints[,2]-bottomleft[2])^2
+	npoints <- npoints[order(dist),,drop=FALSE]
+	npoints
+
+}
+
+
 
 .addIntersectingFace <- function(new1,new2,tempface2Name,face2IntersectionPoints) {
 	# for each intersection point there is a (set of) edges of face2 to the next intersection 
@@ -1652,6 +1753,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	faceEdgeList
 }
 
+if(FALSE){
 .create.edge.joining.faces <- function(drawing,outerFaceName,innerFaceName) {
 	outerPoints <- .points.of.face(drawing,outerFaceName)
 	innerPoints <- .points.of.face(drawing,innerFaceName)
@@ -1680,6 +1782,8 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	return(list(edgeName=edgeName,drawing=drawing,ok=TRUE))
 	
 }
+}
+
 
 
 .internal.edge.drawing.intersection <- function(drawing,edge) {
@@ -1713,11 +1817,15 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	.find.point.in.nodelist(drawing1,drawing2@nodeList[[pointName]])
 }
 
+.node.number.unused <- function(drawing) {
+	max(as.numeric(gsub("[^0-9]","",c(names(drawing@nodeList)))))+1
+}
+
 .add.intersection.points <- function(drawing1,drawing2) {
 	new1 <- drawing1; new2 <- drawing2;
 	intersectionPoints <- character(0);
 	# max number used in nodenames to avoid clashes
-	nix <- max(as.numeric(gsub("[^0-9]","",c(names(drawing1@nodeList),names(drawing2@nodeList)))))
+	nix <- max(.node.number.unused(drawing1),.node.number.unused(drawing2))
 	fres <- NULL
 	for (edgeName1 in names(drawing1@edgeList)) {
 		for (edgeName2 in names(new2@edgeList)) {
