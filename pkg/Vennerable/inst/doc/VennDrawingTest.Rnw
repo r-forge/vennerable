@@ -688,7 +688,6 @@ checkAreas(CR3f )
 \end{center}
 \end{figure}
 
-\subsection{Chow-Ruskey diagrams for 4 sets}
 
 \begin{figure}[H]\begin{center}
 <<>>=

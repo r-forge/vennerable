@@ -163,6 +163,8 @@ FaceTextColours <- function(drawing,faceNames,colourAlgorithm) {
 				res<-agp;
 				res$col<- if (res$col==bcols[1]){bcols[2]}else{bcols[1]};
 				res$fill<-res$col;res})
+		} else {
+		gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
 		}
 	} else {
 		gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})

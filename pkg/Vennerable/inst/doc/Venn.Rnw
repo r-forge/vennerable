@@ -664,6 +664,21 @@ plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE))
 \end{center}
 \end{figure}
 
+
+\begin{figure}[H]\begin{center}
+<<plotCR4stem,echo=TRUE,fig=TRUE,cache=TRUE>>=
+Tstem <- compute.Venn(Vstem)
+gp <- VennThemes(Tstem,colourAlgorithm="sequential")
+gps <- gp[["Set"]]; nSets <- length(gps)
+for (ix in 1:nSets) { gps[[ix]]$lwd <- nSets+1 - ix }
+gp[["Set"]] <- gps
+plot(Vstem,type="ChowRuskey",show=list(SetLabels=TRUE),gp=gp)
+@
+\caption{Chow-Ruskey weighted 4-set diagram for the stem cell data}
+\end{center}
+\end{figure}
+
+
 \newpage
 %########################################################
 \section{Euler diagrams}
@@ -799,9 +814,7 @@ p2four (Vmonth2.no11,type="squares")
 \subsubsection{Circles}
 There is currently no effect of setting \texttt{doEuler=TRUE} for three circles,
 but the \texttt{doWeights=TRUE} flag does an approximate job. There are about
- 40 distinct ways in which intersection regions can have zeroes can occur, and some of these expose 
-bugs in the underlying polygon-polygon clipping code,
-but here are some examples.
+ 40 distinct ways in which intersection regions can have zeroes can occur, but here are some examples.
 
 
 <<otherV,echo=FALSE>>=

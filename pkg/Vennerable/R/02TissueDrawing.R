@@ -1036,6 +1036,12 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	point
 }
 
+.face.maxradius <- function(drawing,faceName) {
+	edgebb <- lapply(.face.to.faceEdges(drawing,faceName),function(x)x@bb)
+	absbb <- max(sapply(edgebb,function(x)max(abs(x))))
+	maxradius <- sqrt(2)*absbb
+	maxradius 
+}
 
 
 .find.point.within.face <- function(drawing,faceName,treat.dark.matter.as.face=FALSE) {
@@ -1055,8 +1061,8 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	# create a line from the centroid to past that point, and call it a chord
 	chord.from.xy <- faceCentroid 
 	grad <- faceCentroid-amidpoint; grad <- grad/sqrt(sum(grad^2))
-	chord.to.xy <- amidpoint- 2*grad
-	
+	maxradius <- .face.maxradius(drawing,faceName)
+	chord.to.xy <- amidpoint- maxradius*grad
 
 	npoints <- .probe.chord.intersections(drawing,faceName,chord.from.xy,chord.to.xy)
 
@@ -1662,6 +1668,8 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	# draw a line between the two, and see where the line intersects the face. 
 	# then arrange all of these intersection points in the order they appear in along the line,
 	# including the chord.from.xy point
+
+	
 
 	# names pc and pmid not used
 	chord <- newEdgeLines(from="pc",to="pmid",xy=rbind(chord.from.xy,chord.to.xy))

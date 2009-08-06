@@ -1286,6 +1286,27 @@ PlotNodes(TM)
 @
 \caption{Injecting points}
  \end{center}\end{figure}
+\section{Chow Ruskey}
+\subsection{Bug 522}
+
+\begin{figure}[H]\begin{center}
+<<plotCR4,echo=FALSE,fig=TRUE>>=
+data(StemCell)
+Vstem <- Venn(StemCell)
+Tstem <- compute.Venn(Vstem)
+grid.newpage()
+pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-50,50),c(-50,50))
+grid.xaxis();grid.yaxis()
+PlotSetBoundaries(Tstem)
+PlotNodes(Tstem)
+.validateDrawing(Tstem)
+try(IntersectionMidpoints(Tstem))
+
+@
+\caption{Chow-Ruskey weighted 4-set diagram with smudge warnings}
+\end{center}
+\end{figure}
 
 \section{This document}
 
