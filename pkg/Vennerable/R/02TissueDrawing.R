@@ -959,15 +959,19 @@ faceAreas <- function(drawing) {
 	sapply(.faceNames(drawing),function(faceName)abs(.face.area(drawing,faceName)))
 }
 
-.face.centroid <- function(drawing,faceName) {
-	all.xy <- .face.toxy(drawing,faceName)
+.polygon.centroid <- function(all.xy) {
 	xy1 <- all.xy; xy2 <- all.xy[ c(2:nrow(all.xy),1),]
 	x1 <- xy1[,1];y1 <-xy1[,2];x2<-xy2[,1];y2<- xy2[,2]
-	area <- .face.area(drawing,faceName)
+	area <- .polygon.area(all.xy)
 	cx <- sum((x1+x2) * ( x1 * y2 - x2 * y1))/(6* area)
 	cy <- sum((y1+y2) * ( x1 * y2 - x2 * y1))/(6* area)
-
 	centroid.xy <- matrix(c(cx,cy),ncol=2)
+	centroid.xy
+}
+
+.face.centroid <- function(drawing,faceName) {
+	all.xy <- .face.toxy(drawing,faceName)
+	.polygon.centroid(all.xy)
 }
 
 .PlotFace.TissueDrawing <- function(drawing,faceName,dx=0.05,gp=gpar(),doDarkMatter=FALSE) {
@@ -1055,6 +1059,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	if (.is.point.within.face(drawing,faceName,faceCentroid)) {
 		return(faceCentroid)
 	}
+	if (faceName!="1100") { # old method 
 	# find a point on the edge which is ideally not a node
 	amidpoint <- .find.point.on.face(drawing,faceName)
 
@@ -1076,9 +1081,57 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	} else{ stop(sprintf("Error in finding a point in face %s",faceName))}
 	qmid <- (q1+q2)/2
 	rownames(qmid) <- faceName
-	qmid
-
+		return(qmid)
+	} # old method
+	ear.triangle <- .find.triangle.within.face(drawing,faceName)
+	earCentroid <- .polygon.centroid(ear.triangle)
+	if (!	.is.point.within.face(drawing,faceName,earCentroid )) {
+		stop("Ear method failed in face %s\n",faceName)
+	}
+	return(earCentroid)
 }
+
+.find.triangle.within.face <- function(drawing,faceName) {
+	# poor mans triangulation... subtracting ear method cf wikipedia polygon triangulation
+	xy <- .face.toxy(drawing,faceName)
+	xy <- rbind(xy,xy[1:2,])
+	fix <- NA
+	for (ix in 2:(nrow(xy)-1)) {
+		from <- xy[ix-1,,drop=FALSE]
+		to <- xy[ix+1,,drop=FALSE]
+		pt <- xy[ix,,drop=FALSE]
+		thetafrom <- atan2( from[,2]-pt[,2],from[,1]-pt[,1])
+		thetato <-   atan2(   to[,2]-pt[,2],to[,1]-pt[,1])
+		thetato <- thetato - thetafrom
+		thetato <- thetato %% (2 * pi)
+		if (thetato > pi) { # not a convex point
+			next
+		}
+		npoints <- .probe.chord.intersections(drawing,faceName,from,to)
+		fromdist <- ((npoints[,1]-from[1])^2+(npoints[,2]-from[2])^2 ) * sign(npoints[,1]-from[1])
+		npoints <- npoints[order(fromdist),]; fromdist <- sort(fromdist)
+		fromix <- min(which(fequal(fromdist,0)))
+		if (fromix !=1) {
+			fromdist <- -fromdist
+			npoints <- npoints[order(fromdist),];fromdist <- sort(fromdist)
+			fromix <- min(which(fequal(fromdist,0)))
+			stopifnot(fromix==1)
+		}
+		# the next point along has to be the to point otherwise intersection
+		nextix <- min(which(!fequal(fromdist,0)))
+		nextpt <- npoints[nextix,,drop=FALSE]
+		nointersect <- all(fequal(nextpt,to))
+		if (nointersect) {
+			fix <- ix
+			break
+		}
+	}
+	if (is.na(fix)) {
+		stop(sprintf("Can't find ears for face %s\n",faceName))
+	}
+	return(xy[ (fix-1):(fix+1),])
+}
+
 
 internalPointsofFaces <- function(drawing) {
 	fNames <-setdiff(.faceNames(drawing),"DarkMatter") 
@@ -1683,7 +1736,9 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	}	
 	# now we have a collection of points at which the chord crosses the face
 	ipoints <- do.call(rbind,lapply(names(foundList),
-		function(x){y<-foundList[[x]];if(nrow(y)>0){rownames(y)<-paste(x,seq_len(nrow(y)),sep=";")};y})
+		function(x){
+			y<-foundList[[x]];
+			if(nrow(y)>0){rownames(y)<-paste(x,seq_len(nrow(y)),sep=";")};y})
 		)
 	# we want to order them along the line of the chord
 	npoints <- rbind(ipoints,chord.from.xy)

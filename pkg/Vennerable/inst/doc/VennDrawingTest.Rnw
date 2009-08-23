@@ -696,12 +696,7 @@ V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
 <<plotCR4,echo=FALSE,fig=TRUE>>=
 CR4a <-  compute.CR(V4a)
 grid.newpage()
-PlotVennGeometry(CR4a,show=list(FaceText=character(0)))
-try( {
-	PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
-	# TODO this fails 1011 and 0111
-	}
-)
+PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
 checkAreas(CR4a )
 @
 \caption{Chow-Ruskey weighted 4-set diagram, produces an error if we try to plot signature face text}
