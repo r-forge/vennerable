@@ -1059,7 +1059,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	if (.is.point.within.face(drawing,faceName,faceCentroid)) {
 		return(faceCentroid)
 	}
-	if (faceName!="1100") { # old method 
+	if (FALSE) { # old method 
 	# find a point on the edge which is ideally not a node
 	amidpoint <- .find.point.on.face(drawing,faceName)
 
