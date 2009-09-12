@@ -1,6 +1,5 @@
 \name{Vennerable-internal}
 \Rdversion{1.1}
-
 \alias{TDEdgeList-class}
 \alias{TDFaceList-class}
 \alias{VDedgeDrawn-class}
@@ -38,13 +37,10 @@
 \alias{joinEdges-methods} 
 \alias{joinEdges,VDedgeLines,VDedgeLines-method} 
 \alias{joinEdges,VDedgeSector,VDedgeSector-method}
-
-
 \alias{show,TDFaceList-method}
 \alias{show,VDedgeDrawn-method}
 \alias{show,VDedgeLines-method}
 \alias{show,VDedgeSector-method}
-
 \alias{addcovers}
 \alias{addFace}
 \alias{addSedge}
@@ -150,7 +146,6 @@
 \alias{VisibleRange}
 \alias{zeropos}
 \alias{zerotheta}
-
 \title{
 Internal functions for Vennerable, plus the ones I haven't documented yet
 }
