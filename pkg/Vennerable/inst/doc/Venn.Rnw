@@ -849,7 +849,7 @@ grid.newpage()
 
 
 @
-\caption{Weighted 3d Venn  empty intersections. Note ghost face in top-right example. Rerunning this Figure with \texttt{Faces=TRUE} will reveal further problems.}
+\caption{Weighted 3d Venn  empty intersections.}
 \end{center}\end{figure}
 
 \begin{figure}[H]

@@ -664,7 +664,7 @@ setSignature <- function(drawing,faceName,signature) {
 	} else {
 		edges <- drawing@faceList[[faceName]] 
 	}
-	if (unsigned) { edges <- sub("^-","",edges); edges <- unique(edges) }
+	if (unsigned) { edges <- sub("^-","",edges);  }
 	
 	edges
 }
@@ -1775,7 +1775,7 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 
 	foundList <- list()
 	
-	for ( edgeName in .faceEdgeNames(drawing,faceName,unsigned=TRUE) ) {
+	for ( edgeName in unique(.faceEdgeNames(drawing,faceName,unsigned=TRUE)) ) {
 		faceEdge <- drawing@edgeList[[edgeName]]
 		found <- .findIntersection(chord,faceEdge)
 		foundList[[edgeName]] <- found
@@ -2134,6 +2134,8 @@ rename.node <- function(drawing,oldName,newName) {
 }
 
 remove.nonintersectionpoints <- function(drawing) {
+	# a non intersection point is a named point (usually from when the face was a single edge)
+	# at which there are no intersections with any other sets
 	for (fname in .faceNames(drawing)) {
 		edgesbySet <- list()
 		for (setname in names(drawing@setList)) {
@@ -2143,8 +2145,15 @@ remove.nonintersectionpoints <- function(drawing) {
 
 #cat(fname,"\n")
 		fedges <- (.faceEdgeNames(drawing,fname,unsigned=TRUE))
+		if (length(fedges)<2) { # only one edge in face so cant have any nonintersection points
+			next
+		}
 		nedges <-  (.faceEdgeNames(drawing,fname,unsigned=FALSE))
-		sedges <- sapply(fedges,function(x){edgedf[edgedf$edgeName==x,"Set"]})
+		sedges <- sapply(fedges,function(x){
+			res <- edgedf[edgedf$edgeName==x,"Set"]
+			if (length(res)==0) { res <- "Invisible"}
+			res
+		})
 		edf <- data.frame(edgeName=fedges,edgeSigned=nedges,Set=sedges,stringsAsFactors=FALSE)
 		edf <- rbind(edf,edf[1,])
 		edf$dup <- FALSE
