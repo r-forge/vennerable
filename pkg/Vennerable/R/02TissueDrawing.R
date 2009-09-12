@@ -344,6 +344,13 @@ setMethod("joinEdges",c("VDedgeSector","VDedgeSector"),function(object1,object2)
 .join.arcs <- function(object1,object2) {
 	# assumes they do join and have same radius centre and hand (and as a side effect will have the same bb)
 	visibility <- c(object1@visible,object2@visible);stopifnot(visibility[1]==visibility[2])
+	if (!fequal((object1@toTheta - object2@fromTheta) %% (2 * pi),0)) {
+		stop(sprintf("Sectors joined at different thetas %g %g\n",object1@toTheta, object2@fromTheta))
+	}
+	if (object1@toTheta <= 0 & object2@fromTheta > 0 ) {
+		object2@fromTheta <- object2@fromTheta - 2*pi # not used but you get the idea
+		object2@toTheta <- object2@toTheta - 2 *pi
+	}
 	newEdge <- object1; 
 	newEdge@toTheta <- object2@toTheta
 	newEdge@to <- object2@to
@@ -495,6 +502,18 @@ setMethod(".checkPointOnEdge",c("VDedgeLines"),function(edge,point.xy) {
 	return(!is.na(.find.point.on.EdgeLines(edge,point.xy)))
 }
 )
+
+
+.face.midplace <- function(drawing,faceName) {
+	# try forming the centroid of the points at the midplace of each edge
+#	browser()
+#	edgeClasses <- .faceEdgeClasses(drawing,faceName)
+#	stopifnot( (length(edgeClasses)==2 & all(edgeClasses=="VDedgeSector")))
+	edges <- .face.to.faceEdges(drawing,faceName)
+	midpoints <- t(sapply(edges,.midpoint))
+	midpoints.centroid <- matrix(apply(midpoints,2,mean),ncol=2,byrow=TRUE)
+	midpoints.centroid
+}
 
 ########################################
 # if a point is on an edge, we will split want to the edge into two
@@ -649,6 +668,18 @@ setSignature <- function(drawing,faceName,signature) {
 	
 	edges
 }
+
+.faceEdgeClasses <- function(drawing,faceName,type="face") { 
+	if (type=="set") {
+		edges <- drawing@setList[[faceName]]
+	} else {
+		edges <- drawing@faceList[[faceName]] 
+	}
+	unsigned.edges <- sub("^-","",edges); 
+	res <- sapply(drawing@edgeList[unsigned.edges],function(x)as.character(class(x)))
+	res
+}
+
 
 renameFaces <- function(drawing,oldName,newName) {
 	stopifnot(length(oldName) == length(newName)) 
@@ -948,6 +979,7 @@ setMethod("PlotNodes","TissueDrawing",function(drawing,gp){
 }
 
 .polygon.area <- function(xy) {
+	# this area is negative for clockwise polygons, sigh
 	xy1 <- xy; xy2 <- xy[ c(2:nrow(xy),1),]
 	x1 <- xy1[,1];y1 <-xy1[,2];x2<-xy2[,1];y2<- xy2[,2]
 	det <- x1*y2 - x2*y1
@@ -1059,6 +1091,15 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	if (.is.point.within.face(drawing,faceName,faceCentroid)) {
 		return(faceCentroid)
 	}
+#browser()
+	# hmm. try the midpoint of each edge and form the centroid of those
+	# will be exactly what we want for two intersceting circle sectors
+	aPoint <- 	.face.midplace(drawing,faceName)
+	if (.is.point.within.face(drawing,faceName,aPoint )) {
+		return(aPoint )
+	}
+
+
 	if (FALSE) { # old method 
 	# find a point on the edge which is ideally not a node
 	amidpoint <- .find.point.on.face(drawing,faceName)
@@ -1086,7 +1127,7 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 	ear.triangle <- .find.triangle.within.face(drawing,faceName)
 	earCentroid <- .polygon.centroid(ear.triangle)
 	if (!	.is.point.within.face(drawing,faceName,earCentroid )) {
-		stop("Ear method failed in face %s\n",faceName)
+		stop(sprintf("Ear method failed in face %s\n",faceName))
 	}
 	return(earCentroid)
 }
@@ -1463,7 +1504,7 @@ newTissueFromEllipse <- function(f1,phi,e,a,Set,dx=0.05) {
 		x <- f1[1]+r*cos(theta)
 		y <- f1[2]+r*sin(theta)
 		
-	points.xy <- cbind(x,y)
+	points.xy <- cbind(x,y)	
 	rownames(points.xy) <- paste("e",letters[Set],1:nrow(points.xy),sep="")
 	newTissueFromPolygon(points.xy=points.xy,Set=Set)
 }
@@ -1473,6 +1514,11 @@ newTissueFromEllipse <- function(f1,phi,e,a,Set,dx=0.05) {
 newTissueFromPolygon <- function(points.xy,Set=1) {
 	points.xy <- 	.removeDuplicates (points.xy)
 	if (nrow(points.xy)<3) {stop("Not enough distince points for a polygon")}
+	isclockwise <- (.polygon.area(points.xy) < 0) 
+	if (!isclockwise) {
+		points.xy <- points.xy[nrow(points.xy):1,]
+	}
+
 	frompoint <- points.xy[1,,drop=FALSE]
 	if (!is.null(rownames(frompoint))) {
 		from = rownames(frompoint) ; 
@@ -2088,7 +2134,6 @@ rename.node <- function(drawing,oldName,newName) {
 }
 
 remove.nonintersectionpoints <- function(drawing) {
-
 	for (fname in .faceNames(drawing)) {
 		edgesbySet <- list()
 		for (setname in names(drawing@setList)) {
@@ -2148,7 +2193,7 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
 	outedge <-getEdge (drawing,outpos) 
 	if (inedge@to != outedge@from) { stop(sprintf("Edges do not joint at single point: %s,%s\n",inedge@to,outedge@from))}
 	if (class(inedge) != class(outedge)) { stop(sprintf("Cant join edges of different classes")) }
-	if (class(inedge) != "VDedgeLines") {stop(sprintf("Cant join edges of non edgeLine classes")) }
+	#if (class(inedge) != "VDedgeLines") {stop(sprintf("Cant join edges of non edgeLine classes")) }
 
 
 	newEdge <- joinEdges(inedge,outedge)

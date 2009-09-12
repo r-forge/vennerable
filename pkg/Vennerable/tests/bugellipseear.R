@@ -1,5 +1,6 @@
 #sfiles <- list.files(full.names=TRUE,"C:\\JonathanSwinton\\Vennerable\\pkg\\Vennerable\\R")
 #for (sfile in sfiles) source(sfile)
+library(Vennerable)
 
 	phi <- 0.8; dex <- 1.7;dey <- 2.5; a<- 7.6; e<- 0.9
 	x0 <- c( -0.9, -5.0)

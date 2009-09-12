@@ -19,7 +19,7 @@ TwoCircles <- function(r,d,V) {
 	centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
 	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
 	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2",remove.points=TRUE)
 	new("CircleDrawing",TM,V,radii=r,centres=centres)
 }
 setMethod("VisibleRange","CircleDrawing",function(object){

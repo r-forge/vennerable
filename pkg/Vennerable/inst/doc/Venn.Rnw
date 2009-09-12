@@ -329,7 +329,7 @@ plotV3uw <- function(V) {
 
 		plot(C2,show=list(
 			Sets=TRUE,FaceText="weight",
-			SetLabels=FALSE,dark.matter=FALSE,Faces=TRUE))
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=TRUE))
 		popViewport()
 		popViewport()
 	}
@@ -377,7 +377,7 @@ plotV4uw <- function(V) {
 		plot(C2,show=list(
 			Sets=TRUE,
 			FaceText="signature",
-			SetLabels=FALSE,dark.matter=FALSE,Faces=TRUE))
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=TRUE))
 	}
 	pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
 	doavp("ChowRuskey")
@@ -712,7 +712,7 @@ p2four <- function(V,type="circles",doFaces=TRUE) {
 		pushViewport(viewport(layout.pos.row=1))
 	plot(C2,show=list(
 			Sets=!doFaces,
-			SetLabels=FALSE,dark.matter=FALSE,Faces=doFaces))
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces))
 			
 			popViewport()
 		popViewport()
@@ -747,7 +747,7 @@ p2two <- function(V,type="circles",doFaces=TRUE,doEuler=FALSE,gp,show) {
 		grid.text(label=txt)
 		popViewport()
 		pushViewport(viewport(layout.pos.row=1))
-		if (missing(show)) show <- list(Sets=TRUE,SetLabels=FALSE,dark.matter=FALSE,Faces=doFaces)
+		if (missing(show)) show <- list(Sets=TRUE,SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces)
 		plot(C2,gp=gp,show=show)		
 		popViewport()
 		popViewport()

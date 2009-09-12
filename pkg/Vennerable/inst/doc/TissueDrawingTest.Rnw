@@ -78,7 +78,7 @@ to ensure the diagram is not disjoint.
 A \texttt{VDedgeSector} object inherits from a \texttt{VDedgeDrawn} one.
 A sector is a segment of a circle, defined by two points, 
 together with the convention that a right-handed sector goes clockwise (Figure \ref{fig:vds}).
-Angles are all interpreted in the same way as \texttt{acos2} ie clockwise from the line $y=0$.
+Angles are all interpreted in the same way as \texttt{atan2}, ie clockwise from the line $y=0$.
 The angles of the beginning $\theta_f$ and end $\theta_t$ of the segment obey $2\pi\geq \theta_f >  0$ and $\theta_f>\theta_t>-2*pi$.
 
 
