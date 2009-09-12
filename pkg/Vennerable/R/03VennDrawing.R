@@ -100,7 +100,7 @@ VennThemes<- function(drawing,colourAlgorithm) {
 		gpList[["FaceText"]] <- FaceTextColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
 	}
 	if (is.null(gpList[["Set"]])) {
-		gpList[["Set"]] <- SetColours(drawing=drawing)
+		gpList[["Set"]] <- SetColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
 	}
 	if (is.null(gpList[["SetText"]])) {
 		gpList[["SetText"]] <- SetTextColours(drawing=drawing)
@@ -180,13 +180,20 @@ SetTextColours <- function(drawing) {
 
 
 
-SetColours <- function(drawing ) {
+SetColours <- function(drawing,colourAlgorithm) {
+	if (missing(colourAlgorithm)) { colourAlgorithm <- "sequential"}
 	nSets <-length(drawing@setList)
-	fillcols <- brewer.pal(9,'Set1')
-	if (nSets > length(fillcols)) {
-		fillcols <- rep(fillcols,times=1+nSets/length(fillcols))
+	if (colourAlgorithm=="binary") {
+		setcolours <-rep("blue",nSets)
+		names(setcolours) <- names(drawing@setList)
+	} else {
+		fillcols <- brewer.pal(9,'Set1')
+		if (nSets > length(fillcols)) {
+			fillcols <- rep(fillcols,times=1+nSets/length(fillcols))
+		}
+ 		setcolours <-fillcols[1:nSets]; 
+		names(setcolours) <- names(drawing@setList)
 	}
- 	setcolours <-fillcols[1:nSets]; names(setcolours) <- names(drawing@setList)
 	gp <- lapply(names(setcolours ),function(x)gpar(col=setcolours [[x]],fill=NA,lty=1,lwd=3)); 	
 	names(gp) <- names(setcolours)
 	gp
