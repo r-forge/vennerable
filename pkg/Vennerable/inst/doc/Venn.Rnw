@@ -891,9 +891,10 @@ the weighted diagrams produced are already Euler diagrams.
 
 \begin{figure}[H]\begin{center}
 <<CR4fig,fig=TRUE>>=
-CK4 <- compute.CR(V4)
+V4z <-  VennFromSets( setList[1:4])
+CK4z <- compute.CR(V4z)
 grid.newpage()
-plot(CK4,show=list(SetLabels=FALSE,FaceText="sets",Faces=TRUE))
+plot(CK4z,show=list(SetLabels=FALSE,FaceText="elements",Faces=TRUE))
 @
 \caption{Chow-Ruskey diagram with some zero weights}
 \end{center}\end{figure}
