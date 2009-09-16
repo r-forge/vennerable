@@ -2135,45 +2135,20 @@ rename.node <- function(drawing,oldName,newName) {
 
 remove.nonintersectionpoints <- function(drawing) {
 	# a non intersection point is a named point (usually from when the face was a single edge)
-	# at which there are no intersections with any other sets
-	for (fname in .faceNames(drawing)) {
-		edgesbySet <- list()
-		for (setname in names(drawing@setList)) {
-			edgesbySet[[setname]] <- names(.face.to.faceEdges(drawing,setname,type="set"))
+	# at which there are no intersections with any other sets/invisible edges
+	# ie it is at the end of exactly one edge
+	#browser()
+	# rely on having only the edges in the drawing in the edgelist, and only have one of each orientation
+	toNodes <- lapply(drawing@edgeList,function(x)x@to)
+	fromNodes <- lapply(drawing@edgeList,function(x)x@from)
+	toNode.count <- table(as.character(toNodes))
+	fromNode.count <- table(as.character(fromNodes))
+	noni.nodes <- intersect(names(toNode.count)[toNode.count==1],names(fromNode.count)[fromNode.count==1])
+	for (node in noni.nodes) {
+		inedgeName <- names(toNodes)[toNodes==node]
+		outedgeName<- names(fromNodes)[fromNodes==node]
+		drawing <- joinEdgesInDrawing(drawing,inedgeName ,outedgeName)
 		}
-		edgedf <- do.call(rbind,lapply(names(edgesbySet),function(setname){data.frame(edgeName=edgesbySet[[setname]],Set=setname,stringsAsFactors=FALSE)}))
-
-#cat(fname,"\n")
-		fedges <- (.faceEdgeNames(drawing,fname,unsigned=TRUE))
-		if (length(fedges)<2) { # only one edge in face so cant have any nonintersection points
-			next
-		}
-		nedges <-  (.faceEdgeNames(drawing,fname,unsigned=FALSE))
-		sedges <- sapply(fedges,function(x){
-			res <- edgedf[edgedf$edgeName==x,"Set"]
-			if (length(res)==0) { res <- "Invisible"}
-			res
-		})
-		edf <- data.frame(edgeName=fedges,edgeSigned=nedges,Set=sedges,stringsAsFactors=FALSE)
-		edf <- rbind(edf,edf[1,])
-		edf$dup <- FALSE
-		for (ix in 1:nrow(edf)) {
-			if (ix==nrow(edf)){jx <- 1} else {jx <- ix+1}
-			if (edf$Set[ix]==edf$Set[jx]) {
-				edf$dup[ix] <- TRUE
-			}
-		}
-		dupix <- which(edf$dup[-length(edf$dup)])
-#print(edf)
-		# will fail if successive nonintersection points
-#browser()
-		for (dupi in dupix) {
-			inedgeName <- edf$edgeSigned[dupi]
-			outedgeName <- edf$edgeSigned[dupi+1]
-			Set <- edf$Set[dupi]
-			drawing <- joinEdgesInDrawing(drawing,inedgeName ,outedgeName,Set)
-		}
-	}
 	drawing
 }
 
@@ -2186,8 +2161,7 @@ getEdge <- function(drawing,edgeName) {
 	edge
 }
 
-joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
-#cat(sprintf("Joining %s and %s in Set %s\n",inedgeName,outedgeName,Set))
+joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
 	inrev <- substr(inedgeName,1,1)=="-"
 	outrev <- substr(outedgeName,1,1)=="-"
 	if (inrev !=outrev) {stop("Cant cope with joining edges of opposite polarity")}
@@ -2206,6 +2180,14 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName,Set) {
 
 
 	newEdge <- joinEdges(inedge,outedge)
+
+	inEdgeSplit <- strsplit(inedgeName ,split="|",fixed=TRUE)[[1]];
+	if (length(inEdgeSplit)>=3) {
+		Set <- inEdgeSplit[3]
+	} else {
+		Set <- "X"
+	}
+#cat(sprintf("Joining %s and %s in Set %s\n",inedgeName,outedgeName,Set))
 	newEdgeName <- paste(inedge@from,outedge@to,gsub("[A-Za-z]","",Set),sep="|")
 	
 	drawing@edgeList[[ inpos]] <- NULL

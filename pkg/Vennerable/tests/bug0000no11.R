@@ -7,4 +7,5 @@ Vmonth2.no11 <- Vmonth2
 Weights(Vmonth2.no11)["11"] <- 0
 V <- Vmonth2.no11
 #undebug(remove.nonintersectionpoints)
+#undebug(joinEdgesInDrawing)
 C2 <- compute.Venn(V,doWeights=FALSE,doEuler=TRUE,type="circles")
