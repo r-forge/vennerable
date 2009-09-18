@@ -380,10 +380,12 @@ setMethod("joinEdges",c("VDedgeSector","VDedgeSector"),function(object1,object2)
 sector.to.xy <-  function(edge,dx=.05) {
 	r <- edge@radius;
 	hand <- edge@hand
-	if (edge@from==edge@to ) { 
-		if (hand>0) { thetafrom <- 2*pi; thetato <- 0 } else { thetafrom <- 0; thetato <- 2*pi}
-		thetadist <- 2 * pi
-	} else {
+#	if (edge@from==edge@to ) { 
+#		(if (thetafrom - thetato
+#		thetato <- theta
+#		if (hand>0) { thetafrom <- 2*pi; thetato <- 0 } else { thetafrom <- 0; thetato <- 2*pi}
+#		thetadist <- 2 * pi
+#	} else {
 		thetafrom <- edge@fromTheta;thetato <- edge@toTheta
 		# if hand > 0 we always go anti-clockwise, decreasing thetafrom 
 		# so thetato must be less  than thetafrom
@@ -395,7 +397,7 @@ sector.to.xy <-  function(edge,dx=.05) {
 			if (thetato<thetafrom)  { thetato <- thetato + 2* pi } 
 			thetadist <- thetato - thetafrom
 		}
-	}
+#	}
 	arclength <- (thetadist) * r
 	nintervals <- arclength/dx
 	theta <- seq(from=thetafrom,to=thetato,length=nintervals)

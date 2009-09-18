@@ -285,9 +285,9 @@ p2four <- function(V,type="circles",doFaces=FALSE) {
 		grid.text(label=txt)
 		popViewport()
 		pushViewport(viewport(layout.pos.row=1))
-	PlotVennGeometry(C2,show=list(
+		PlotVennGeometry(C2,show=list(
 			Sets=!doFaces,
-			SetLabels=FALSE,dark.matter=FALSE,Faces=doFaces))
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces))
 		downViewport("Vennvp")
 		PlotNodes(C2)
 		UpViewports()	
@@ -350,7 +350,7 @@ p2four (V2.no11,doFaces=TRUE)
 \begin{figure}[H]\begin{center}
 <<p2no10threef,fig=TRUE>>=
 p2four (V2.no10,doFaces=TRUE)
-C2 <- compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
+#C2 <- compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
 @
 \caption{As before for a different set of weights}
 \end{center}\end{figure}

@@ -8,6 +8,7 @@ Weights(V2.no10)["10"] <- 0
 
 #debug(joinEdgesInDrawing)
 C2 <- compute.Venn(V2.no10,doWeights=FALSE,doEuler=TRUE,type="circles")
+plot(C2)
 
 V2.no01 <- V2
 Weights(V2.no01)["01"] <- 0
