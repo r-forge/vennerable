@@ -12,15 +12,21 @@
 
 ################################################
 setGeneric("PlotUniverse",function(object,gp){standardGeneric("PlotUniverse")})
-setGeneric("IntersectionMidpoints",function(object){standardGeneric("IntersectionMidpoints")}) 
-setGeneric("SetLabelPositions",function(object){standardGeneric("SetLabelPositions")}) 
+#setGeneric("IntersectionMidpoints",function(object){standardGeneric("IntersectionMidpoints")}) 
+#setGeneric("SetLabelPositions",function(object){standardGeneric("SetLabelPositions")}) 
 setGeneric("Areas",function(object){standardGeneric("Areas")}) 
 setGeneric("ComputeAreas",function(object,nintervals){standardGeneric("ComputeAreas")}) 
 setGeneric("VisibleRange",function(object){standardGeneric("VisibleRange")}) 
 setGeneric("UniverseRange",function(object){standardGeneric("UniverseRange")}) 
+setGeneric("VennSetSetLabels",function(object,SetLabels){standardGeneric("VennSetSetLabels")}) 
+setGeneric("VennGetSetLabels",function(object){standardGeneric("VennGetSetLabels")}) 
+setGeneric("VennSetFaceLabels",function(object,FaceLabels){standardGeneric("VennSetFaceLabels")}) 
+setGeneric("VennGetFaceLabels",function(object){standardGeneric("VennGetFaceLabels")}) 
 
 
-setClass("VennDrawing",representation("TissueDrawing","Venn",universe="matrix"))
+
+setClass("VennDrawing",representation("TissueDrawing","Venn",
+	universe="matrix",SetLabels="data.frame",FaceLabels="data.frame"))
 
 setMethod("show","VennDrawing",function(object) {
 	show(as(object,"Venn"))
@@ -30,21 +36,28 @@ setMethod("show","VennDrawing",function(object) {
 
 setMethod("UniverseRange","VennDrawing",function(object)object@universe)
 # eg CircleDrawing overrides these methods:
-setMethod("VisibleRange","VennDrawing",function(object){
+setMethod("VisibleRange","TissueDrawing",function(object){
 	dxxy <- do.call("rbind",lapply(names(object@setList),.face.toxy,type="set",drawing=object))
 	apply(dxxy,2,range)
 })
 
-setMethod("SetLabelPositions","VennDrawing",function(object){
+.default.SetLabelPositions <- function(object){
 	yscale <- diff(VisibleRange(object)[,2]); smidge <- 0.01*yscale
 	sxxy <- lapply(names(object@setList),.face.toxy,type="set",drawing=object)
+	setNames <- VennSetNames(as(object,"Venn"))
 	smaxy <- do.call(rbind,lapply(sxxy,function(x){x[which(x[,2]==max(x[,2]))[1],] }))
 	VLabels <- data.frame(Label=rep("unset",nrow(smaxy)),x=NA,y=NA,hjust=I("left"),vjust=I("bottom"))
 	VLabels[,2:3] <- smaxy
-	VLabels$Label <- VennSetNames(as(object,"Venn"))
+	VLabels$Label <- setNames 
 	VLabels
 }
-)
+
+setMethod("VennSetSetLabels","VennDrawing",function(object,SetLabels) {object@SetLabels <- SetLabels; object})
+setMethod("VennGetSetLabels","VennDrawing",function(object) {object@SetLabels})
+setMethod("VennSetFaceLabels","VennDrawing",function(object,FaceLabels) {object@FaceLabels <- FaceLabels; object})
+setMethod("VennGetFaceLabels","VennDrawing",function(object) {object@FaceLabels})
+
+
 
 setMethod("PlotUniverse","VennDrawing", function(object,gp) {
 	if(missing(gp)) { gp <- NULL }
@@ -55,7 +68,7 @@ setMethod("PlotUniverse","VennDrawing", function(object,gp) {
 )
 
 .square.universe <- function(object,doWeights=FALSE,smudge=0.05) {
-	if (doWeights) {
+	if (FALSE & doWeights) { # never attempt to weight the Dark Matter for now
 		# minimal square box 
 		minimal.square.universe.area <- diff(VisibleRange(object)[,1])*diff(VisibleRange(object)[,2])
 		V <- as(object,"Venn")
@@ -169,12 +182,18 @@ FaceTextColours <- function(drawing,faceNames,colourAlgorithm) {
 	} else {
 		gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
 	}
+	Nsets <- NumberOfSets(drawing)
+	fontsize <- if (Nsets<=3) { 20 } else {10 }
+	gp <- lapply(gp,function(agp){res<-agp;res$fontsize<-fontsize;res})
 	gp
 }
 
 SetTextColours <- function(drawing) {
 	gp <- SetColours(drawing=drawing)
-	gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
+#	gp <- lapply(gp,function(agp){res<-agp;res$col<-"black";res$fill<-res$col;res})
+	Nsets <- NumberOfSets(drawing)
+	fontsize <- if (Nsets<=3) { 20 } else {10 }
+	gp <- lapply(gp,function(agp){res<-agp;res$fontsize<-fontsize;res})
 	gp
 }
 
@@ -201,7 +220,7 @@ SetColours <- function(drawing,colourAlgorithm) {
 
 
 PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
-	show.default <- list(universe=TRUE,Sets=TRUE,SetLabels=TRUE,
+	show.default <- list(Universe=TRUE,Sets=TRUE,SetLabels=TRUE,
 		DarkMatter=FALSE,
 		Faces=TRUE,
 		FaceText="weight")
@@ -222,7 +241,7 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
  	
 	CreateViewport(C3)
 	
-	if(show.default$universe) {
+	if(show.default$Universe) {
 		PlotUniverse(C3)
 	}
 	if(show.default$DarkMatter) {
@@ -252,7 +271,8 @@ PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matte
 	if (missing(gp)) gp <- FaceTextColours(object)
 	V <- as(object,"Venn")
 	nSets <- NumberOfSets(V)
-	VI <- IntersectionMidpoints(object);rownames(VI) <- VI$FaceName
+	VI <- VennGetFaceLabels(object);
+	rownames(VI) <- VI$FaceName
 
 	
 	VI$Annotation <- ""
@@ -299,8 +319,7 @@ PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matte
 	}
 }
 
-
-setMethod("IntersectionMidpoints","VennDrawing",function(object){	
+.default.FaceLabelPositions <- function(object){	
 	dm <-  dark.matter.signature(object)
 	ilabels <- data.frame(internalPointsofFaces(as(object,"TissueDrawing")))
 	colnames(ilabels) <- c("x","y")
@@ -314,7 +333,7 @@ setMethod("IntersectionMidpoints","VennDrawing",function(object){
 	df[df$Signature==dm,c("hjust")] <- c("right")
 	df[df$Signature==dm,c("vjust")] <- c("top")
 	df
-})
+}
 
 setMethod("Areas","VennDrawing",function(object) {
 	areas <- faceAreas(as(object,"TissueDrawing"))
@@ -325,9 +344,8 @@ setMethod("Areas","VennDrawing",function(object) {
 
 
 
-
 PlotSetLabels <- function(object,gp) {
-	VLabels <- SetLabelPositions(object)
+	VLabels <- VennGetSetLabels(object)
 	if(missing(gp)) gp <- SetColours(object)
 	if(nrow(VLabels)==0){ warning("Can't show Set labels"); return()}
 #	print(VLabels)

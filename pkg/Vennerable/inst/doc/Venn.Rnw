@@ -41,8 +41,7 @@ Venn diagrams in R\\with the \texttt{Vennerable} package
 #library(Vennerable)
 <<doremove,echo=FALSE>>=
 if ("package:Vennerable" %in% search())detach("package:Vennerable")
-remove(list=setdiff(ls(),"makeme"));
-library(Vennerable)
+remove(list=setdiff(ls(),"makeme"));library(Vennerable)
 @
 
 <<defmakevp>>=
@@ -219,6 +218,7 @@ The elements of these lists in turn are graphical parameters in the sense of
 
 \begin{figure}[H]\begin{center}
 <<pwabVmonth3,echo=TRUE,fig=TRUE>>=
+grid.newpage()
 gp <- VennThemes(C3,colourAlgorithm="binary")
 plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 @
@@ -260,7 +260,9 @@ doAnnotatedVP <- function(TD,annotation,show) {
 	grid.text(label=annotation)
 	popViewport()
 	pushViewport(viewport(layout.pos.row=1))
-	plot(TD,show=show)
+	gp <- VennThemes(TD)
+	gp <- lapply(gp,function(x){lapply(x,function(z){z$fontsize <- 10;z})})
+	plot(TD,show=show,gpList=gp)
 	popViewport()
 	popViewport()
 	}
@@ -417,8 +419,7 @@ gpSquare <- function(aVennDrawing) {
 
 
 <<S4figdef,echo=FALSE>>=
-showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="")
-dosans <- function(V4,s,likeSquares) {
+dosans <- function(V4,s,likeSquares,showe) {
 	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
 	gp <- gpSquare(S4)
 	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
@@ -437,19 +438,20 @@ For more details on this see the help pages for \texttt{compute.S4}.
 
 \begin{figure}[H]\begin{center}
 <<S4fig,fig=TRUE>>=
+showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature")
 grid.newpage()
 pushViewport( viewport(layout=grid.layout(2,2)))
 pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
-dosans(V4,s=0.2,likeSquares=FALSE)
+dosans(V4,s=0.2,likeSquares=FALSE,showe)
 upViewport()
 pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
-dosans(V4,s=0,likeSquares=FALSE)
+dosans(V4,s=0,likeSquares=FALSE,showe)
 upViewport()
 pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
-dosans(V4,s=0.2,likeSquares=TRUE)
+dosans(V4,s=0.2,likeSquares=TRUE,showe)
 upViewport()
 pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
-dosans(V4,s=0,likeSquares=TRUE)
+dosans(V4,s=0,likeSquares=TRUE,showe)
 upViewport()
 
 @
@@ -466,7 +468,7 @@ generate Venn diagrams on an arbitrary number of sets $n$. The currently impleme
 computes up to 8 sets for the classic construction. 
 
 \begin{figure}[H]\begin{center}
-<<S47fig,fig=TRUE,cache=TRUE>>=
+<<S47fig,fig=TRUE,cache=TRUE,eval=TRUE>>=
 doans <- function(n) {
 	S4  <- compute.AWFE(Venn(n=n),type="AWFE")
 	gp <- VennThemes(drawing=S4,colourAlgorithm="binary")
@@ -510,7 +512,7 @@ It can be drawn by using \texttt{type="battle"} for up to 9 sets.
 
 
 \begin{figure}[H]\begin{center}
-<<S47battle,fig=TRUE,echo=TRUE>>=
+<<S47battle,fig=TRUE,echo=TRUE,eval=TRUE>>=
 plot(Venn(n=9),type="battle",show=list(SetLabels=FALSE,FaceText=""))
 @
 \caption{The battlement variant of the Edwards construction on 9 sets with the \texttt{type=battle} argument}
@@ -630,6 +632,7 @@ an area-proportional drawing under some contraints on the weights (detailed else
 
 \begin{figure}[H]\begin{center}
 <<plotT3,echo=TRUE,fig=TRUE>>=
+grid.newpage()
 C3t <- compute.Venn(V3a,type="triangles")
 plot(C3t,show=list(SetLabels=FALSE))
 @
@@ -830,7 +833,7 @@ Vempty4 <- VennFromSets( setList[c(9,5,6)])
 
 \begin{figure}[H]\begin{center}
 <<pv3wempty,fig=TRUE>>=
-showe <- list(FaceText="elements",Faces=FALSE,DarkMatter=FALSE)
+showe <- list(FaceText="elements",Faces=FALSE,DarkMatter=FALSE,Universe=FALSE)
 grid.newpage()
 	pushViewport(viewport(layout=grid.layout(2,2)))
 	pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))

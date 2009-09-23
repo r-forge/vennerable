@@ -5,7 +5,6 @@
 # r is radius of circle
 # d distance from origin
 
-setClass("CircleDrawing",representation("VennDrawing",radii="numeric",centres="matrix"))
 
 TwoCircles <- function(r,d,V) {
 	if (length(r) !=2 ) {
@@ -20,25 +19,31 @@ TwoCircles <- function(r,d,V) {
 	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
 	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
 	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2",remove.points=TRUE)
-	new("CircleDrawing",TM,V,radii=r,centres=centres)
+	V2 <- new("VennDrawing",TM,V)
+	SetLabels <- .circle.SetLabelPositions(V2,radii=r,centres=centres)
+	V2 <- VennSetSetLabels(V2,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(V2)
+	V2 <- VennSetFaceLabels(V2,FaceLabels)
+
+	V2
 }
-setMethod("VisibleRange","CircleDrawing",function(object){
-	xymax <- object@centres+matrix(rep(object@radii,each=2),ncol=2,byrow=TRUE)
-	xymin <- object@centres-matrix(rep(object@radii,each=2),ncol=2,byrow=TRUE)
-	xy <- rbind(xymax,xymin); xy <- apply(xy,2,range)
-	xy
-}
-)
-setMethod("SetLabelPositions","CircleDrawing",function(object){
-	yscale <- diff(VisibleRange(object)[,2]); smidge <- 0.01*yscale
-	xy <- object@centres
-	xy[,2] <- xy[,2]+object@radii+smidge
+
+.circle.SetLabelPositions <- function(object,radii,centres){
+	yscale <- diff(VisibleRange(object)[,2]);
+	smidge <- 0.01*yscale
+	xy <- centres
+	abovebelow <- rep(1,NumberOfSets(object))
+	if (NumberOfSets(object)==3) {
+		abovebelow <- c(1,-1,-1)
+	}
+	xy[,2] <- xy[,2]+abovebelow*(radii+smidge)
 	VLabels <- data.frame(Label=rep("unset",nrow(xy)),x=NA,y=NA,hjust=I("center"),vjust=I("bottom"))
+	VLabels$vjust <- ifelse(abovebelow>0,"bottom","top")
 	VLabels[,2:3] <- xy
 	VLabels$Label <- VennSetNames(as(object,"Venn"))
 	VLabels
 }
-)
+
 
 # 2-d diagrams
 compute.C2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
@@ -59,6 +64,7 @@ compute.C2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 	r1 <- dList$r1;r2 <- dList$r2; d <- dList$d; 
 	C2 <- TwoCircles(r=c(r1,r2),d=d,V) # d in TwoCircles is distance of centre from origin
 	C2 <- .square.universe(C2,doWeights)
+	C2
 	
 }
 
@@ -191,9 +197,9 @@ ThreeCircles <- function(r,x,y,d,angles,V) {
 	} 
 	if (nodes>=10) stop("Still can't join circles")
 
-	C3 <- new("CircleDrawing",TM2,V,radii=r,centres=centres)
-	C3
-
+	C3 <- new("VennDrawing",TM2,V)
+	SetLabels <- .circle.SetLabelPositions(C3,radii=r,centres=centres)
+	C3 <- VennSetSetLabels(C3,SetLabels)
 }
 
 
@@ -281,6 +287,9 @@ if (doWeights) {
 		C3 <- ThreeCircles(r=0.6,d=0.4,V=V)
 	}
 	C3 <- .square.universe(C3,doWeights=doWeights)
+	FaceLabels <- .default.FaceLabelPositions(C3)
+	C3 <- VennSetFaceLabels(C3,FaceLabels)
+
 	C3
 }
 

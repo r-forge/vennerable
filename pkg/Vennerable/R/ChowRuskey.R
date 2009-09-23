@@ -292,6 +292,7 @@ make.maxiray <- function(irs,twok) {
 	nncount <- sapply(nnsplit,function(x)length(x[x=="1"]))
 	regionNames [order(-nncount)]
 }
+
 compute.CR <- function(V,doWeights=TRUE) {
 	nSets <- NumberOfSets(V)
 	Vorig <- V
@@ -387,7 +388,11 @@ compute.CR <- function(V,doWeights=TRUE) {
 
 	TD <- as(TD,"TissueDrawing")
 	VD <- new("VennDrawing",TD,Vorig)
+	SetLabels <- .default.SetLabelPositions(VD)
+	VD <- VennSetSetLabels(VD,SetLabels)
 	VD <- .square.universe(VD ,doWeights=doWeights)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	VD <- VennSetFaceLabels(VD,FaceLabels)
 	VD
 }
 

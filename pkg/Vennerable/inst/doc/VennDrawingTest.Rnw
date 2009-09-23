@@ -148,6 +148,8 @@ PlotNodes(VD2)
  d <- 2*d.origin
  C2 <- TwoCircles(r=r,d=d,V=V2)
  C2 <- .square.universe(C2,doWeights=FALSE)
+ centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
+
  # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
  d1 <- (d^2 - r[2]^2+ r[1]^2) /( 2* d)
  d2 <- d - d1
@@ -164,11 +166,11 @@ PlotNodes(VD2)
  grid.yaxis()
  
 
- grid.segments(x0=C2@centres[1,1],x1=C2@centres[1,1]+d1,y0=0,y1=0,default.units="native")
- grid.segments(x0=C2@centres[2,1],x1=C2@centres[2,1]-d2,y0=0,y1=0,default.units="native")
- grid.segments(x0=C2@centres[1,1]+d1,x1=C2@centres[1,1]+d1,y0=0,y1=y,default.units="native")
- grid.segments(x0=C2@centres[1,1],x1=C2@centres[1,1]+d1,y0=0,y1=y,default.units="native")
- grid.segments(x0=C2@centres[2,1],x1=C2@centres[2,1]-d2,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[1,1]+d1,x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=y,default.units="native")
  grid.text(x=c(-.2,0.4,0.2,-0.2,0.43),y=c(-0.05,-.05,0.2,0.17,0.17),
 	label=c(expression(d[1]),expression(d[2]),"y",expression(r[1]),expression(r[2])),default.units="native")
  UpViewports()
@@ -177,7 +179,8 @@ popViewport()
 Cr <- c(0.8,0.4)
   d <- .5
  C2 <- TwoCircles(r=r,d=d,V2)
- C2 <- .square.universe(C2,doWeights=FALSE)
+  centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
+C2 <- .square.universe(C2,doWeights=FALSE)
  # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
  d1 <- (d^2 - r[2]^2+ r[1]^2) /( 2* d)
  d2 <- d - d1
@@ -189,11 +192,11 @@ Cr <- c(0.8,0.4)
  grid.yaxis()
  
 
- grid.segments(x0=C2@centres[1,1],x1=C2@centres[1,1]+d1,y0=0,y1=0,default.units="native")
- grid.segments(x0=C2@centres[2,1],x1=C2@centres[2,1]-d2,y0=0,y1=0,default.units="native")
- grid.segments(x0=C2@centres[1,1]+d1,x1=C2@centres[1,1]+d1,y0=0,y1=y,default.units="native")
- grid.segments(x0=C2@centres[1,1],x1=C2@centres[1,1]+d1,y0=0,y1=y,default.units="native")
- grid.segments(x0=C2@centres[2,1],x1=C2@centres[2,1]-d2,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[1,1]+d1,x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=y,default.units="native")
  grid.text(x=c(0,0.4,0.5,0.05,0.4),y=c(-0.05,-.05,0.2,0.17,0.17),
 	label=c(expression(d[1]-d[2]),expression(d[2]),
 		"y",expression(r[1]),expression(r[2])),default.units="native")
@@ -563,10 +566,9 @@ PlotVennGeometry(T3,show=list(FaceText="signature"))
 
 
 \subsection{Three triangles}
-<<echo=FALSE,results=hide>>=
+<<threet,echo=FALSE,results=hide>>=
 T3a <- compute.T3(V3a)
 VisibleRange(T3a)
-IntersectionMidpoints(T3a)
 Areas(T3a)
 
 T3.big <- compute.T3(V3.big)

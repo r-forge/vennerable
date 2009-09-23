@@ -16,6 +16,10 @@ compute.AWFE <- function(V,doWeights=FALSE,type="battle") {
 	}
 	TM <- VennDiagrams[[type]][[n]]
 	VD <- new("VennDrawing",TM,V)
+	SetLabels <- .default.SetLabelPositions(VD)
+	VD <- VennSetSetLabels(VD,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	VD <- VennSetFaceLabels(VD,FaceLabels)
 	VD <- .square.universe(VD,doWeights=FALSE)
 	VD
 

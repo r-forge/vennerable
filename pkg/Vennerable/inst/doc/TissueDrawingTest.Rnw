@@ -1302,8 +1302,6 @@ grid.xaxis();grid.yaxis()
 PlotSetBoundaries(Tstem)
 PlotNodes(Tstem)
 .validateDrawing(Tstem)
-try(IntersectionMidpoints(Tstem))
-
 @
 \caption{Chow-Ruskey weighted 4-set diagram with smudge warnings}
 \end{center}
@@ -1315,7 +1313,7 @@ try(IntersectionMidpoints(Tstem))
 \hline
 Author & Jonathan Swinton
 \\
-CVS id of this document & ${}$Id${}$.
+SVN id of this document & ${}$Id${}$.
 \\
 Generated on & \today
 \\

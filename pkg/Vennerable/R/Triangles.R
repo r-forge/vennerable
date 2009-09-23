@@ -151,7 +151,12 @@ compute.T3 <- function(V,doWeights=TRUE) {
 	TM <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
 	TM <- addSetToDrawing (drawing1=TM ,drawing2=VDP3, set2Name="Set3")
 	VD <- new("VennDrawing",TM,Vorig)
+	SetLabels <- .default.SetLabelPositions(VD)
+	VD <- VennSetSetLabels(VD,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	VD <- VennSetFaceLabels(VD,FaceLabels)
 	VD <- .square.universe(VD,doWeights)
+
 
 
 }

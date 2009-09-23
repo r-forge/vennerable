@@ -1,13 +1,13 @@
 #warning("Entering ThreeSquares")
 
-setClass("SquareDrawing",representation("VennDrawing"))
-setMethod("SetLabelPositions","SquareDrawing",function(object) {
-	VLabel <- SetLabelPositions(as(object,"VennDrawing"))
-	if (nrow(VLabel)==2) {
-		VLabel[2,"hjust"] <- "right"
-	}
-	VLabel
-})
+#setClass("SquareDrawing",representation("VennDrawing"))
+#setMethod("SetLabelPositions","SquareDrawing",function(object) {
+##	VLabel <- SetLabelPositions(as(object,"VennDrawing"))
+#	if (nrow(VLabel)==2) {
+#		VLabel[2,"hjust"] <- "right"
+#	}
+#	VLabel
+#})
 	
 
 
@@ -64,8 +64,15 @@ compute.S2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 	TM <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
 	VD <- new("VennDrawing",TM,V)
 	VD <- .square.universe(VD,doWeights)
-	VS <- new("SquareDrawing",VD)
-	VS
+	SetLabels <- .default.SetLabelPositions(VD)
+	SetLabels[2,"hjust"] <- "right"
+	SetLabels[2,"x"] <- r2
+	VD <- VennSetSetLabels(VD,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	VD <- VennSetFaceLabels(VD,FaceLabels)
+
+#	VS <- new("SquareDrawing",VD)
+#	VS
 }
 
 
@@ -75,6 +82,9 @@ compute.S3 <- function(V,doWeights=TRUE) {
 	stopifnot(NumberOfSets(V)==3)
 	wght <- Weights(V)
 	VS <- VennSignature(V)
+	if ( doWeights & wght[VS=="111"]==0 ) {
+		stop("Can't generate a three squares plot for a nonzero central intersection")
+	}
 		
 	if (!doWeights) { 
 		x <- 1; y <- 3
@@ -97,6 +107,8 @@ compute.S3 <- function(V,doWeights=TRUE) {
 	
 	wac <- wght[VS=="101"] 
 	wac.height <- wac/wabc.width
+
+		
 	wac.x <- wabc.x
 	wac.y <-  wabc.height/2+c(0,0,wac.height,wac.height)
 	IntersectionShapes[["101"]] <- matrix(c(wac.x,wac.y),byrow=FALSE,ncol=2)
@@ -142,7 +154,9 @@ compute.S3 <- function(V,doWeights=TRUE) {
 		wb.y <- wabc.height/2-wb.height+c(0,0,wb.height,wb.height,wb.height-wbc.height,wb.height-wbc.height)
 	} else {
 	wb.width <- wab.width + wbc.width
-	if ( wb < wbc.width*(wab.height-wabc.height) ) {
+	wb.height <- wab.height
+	if ( wb < wbc.width*(wab.height-wabc.height) ) { # need to notch 010
+		# not sure this code has ever been tested, and last time I checked xa should be 1!
 		xa <- 2; xb <- wab.width + wbc.width +wab.height; xc <- - wb
 		db <- (-xb+sqrt(xb^2-4*xa*xc))/(2*xa)
 		wb.width <- wb.width+db
@@ -219,8 +233,12 @@ compute.S3 <- function(V,doWeights=TRUE) {
 	TM <- addSetToDrawing (drawing1=TM ,drawing2=VDP3, set2Name="Set3")
 	VD <- new("VennDrawing",TM,V)
 	VD <- .square.universe(VD,doWeights)
-	VS <- new("SquareDrawing",VD)
-	VS
+	SetLabels <- .default.SetLabelPositions(VD)
+	VD <- VennSetSetLabels(VD,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	VD <- VennSetFaceLabels(VD,FaceLabels)
+
+	VD
 }
 
 
@@ -281,6 +299,17 @@ compute.S4 <- function(V,doWeights=FALSE,s=.25,likeSquares=TRUE) {
 		TM <- addSetToDrawing(TM,Set[[ix]],set2Name=paste("Set",ix,sep=""))
 	}
 	VD <- new("VennDrawing",TM,V)
+	SetLabels <- .default.SetLabelPositions(VD)
+	VD <- VennSetSetLabels(VD,SetLabels)
+	FaceLabels <- .default.FaceLabelPositions(VD)
+	if (s>0) { # want the coordinates of face midpoints if s=0
+		Vtemp <- compute.S4(V,doWeights=FALSE,s=0,likeSquares=likeSquares)
+		FaceLabels <- VennGetFaceLabels(Vtemp)
+	} else { 
+		FaceLabels <- .default.FaceLabelPositions(VD)
+	}
+	VD <- VennSetFaceLabels(VD,FaceLabels)
+
 	VD <- .square.universe(VD,doWeights)
 
 

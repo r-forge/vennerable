@@ -8,9 +8,14 @@
 \alias{PlotUniverse,VennDrawing-method}
 \alias{show,VennDrawing-method}
 \alias{UniverseRange,VennDrawing-method}
-\alias{VisibleRange,VennDrawing-method}
+\alias{VisibleRange,TissueDrawing-method}
 \alias{VisibleRange-methods}         
-\alias{VisibleRange,CircleDrawing-method}
+\alias{VennSetSetLabels-methods}
+\alias{VennSetSetLabels,VennDrawing-method}
+\alias{VennGetSetLabels,VennDrawing-method}
+\alias{VennSetFaceLabels,VennDrawing-method}
+\alias{VennGetFaceLabels,VennDrawing-method}
+
 
 \title{Class "VennDrawing" }
 \description{A geometrical representation of a Venn diagram suitable for display}
