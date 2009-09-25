@@ -52,7 +52,7 @@ options(width=80)
 
 V4 <- Venn(n=4)
 plot(V4,type="ellipses",doWeights=FALSE,
-	show=list(universe=FALSE,FaceText="",SetLabels=FALSE,Faces=FALSE))
+	show=list(Universe=FALSE,FaceText="",SetLabels=FALSE,Faces=FALSE))
 @
 \end{center}
 \newpage
@@ -124,44 +124,6 @@ of each region is proportional to, for example, the number
 of corresponding set elements. Finally it adds a number of
 graphical control abilities, including the ability to colour individual
 regions separately.
-\newpage
-\section{Some loose definitions}
-Figure \ref{fig:canonical} illustrates membership of three sets,
-in order OCT4, SOX2 , NANOG. 
-Genes which are members of the SOX2 set but not the OCT4 or NANOG sets
-are members of an \emph{intersection subset} with \emph{indicator string} or \emph{signature}
-\texttt{010}.
-
-Given $n$ sets of elements drawn from a universe,
- there are $2^n$ {intersection subsets}. Each of these is 
-a subset of the universe and there
-is one corresponding to each of the binary strings of length $n$.
-If one of these indicator strings has a 1 in the $i$-th position, all of members of the 
-corresponding intersection subset must be members of the $i$-th set. Depending on the application, the 
-universe of elements from which members of the sets are drawn 
-may be important. 
-Elements in intersection set \texttt{00\ldots}, which are in 
-the universe but not in any known set, are called (by me) \emph{dark matter},
-and we tend to display these differently.
-
-A diagram which produces a visualisation of each of the sets
-as a connected curve in the plane whose regions of intersection
-are connected and correspond to each of the $2^n$ intersection subsets
-is an \emph{unweighted Venn diagram}.
-Weights can be assigned to each of the intersections,
-most naturally being proportional to the number of elements each one contains.
-\emph{Weighted Venn diagrams} have the same topology as unweighted ones, but 
-(attempt to) make the area of each region proportional to the weights. 
-This may not be possible, if any of the weights are zero for example, or because 
-of the geometric constraints of the diagram. Venn diagrams based on 3 circles
-are unable in general to represent even nonzero weights exactly, and cannot be constructed
-at all for $n>3$.
-
-Diagrams in which only those intersections with non-zero weight appear are \emph{Euler diagrams},
-and diagrams which go further and make the area of every intersection proportional to its weight are weighted Euler diagrams.
-For more details and rather more rigour see first the online review of Ruskey and Weston\cite{ruskeyweston:2005} and then the references it contains.
-
-\newpage
 \section{Computation and Annotation}
 \subsection{Computing Venn drawings}
 The calls to \texttt{plot} are really convenience wrappers for two separate functions which compute the 
@@ -204,17 +166,12 @@ The package makes its own decisions about how to colour lines and faces dependin
 complexity of the diagram. This can be overridden with the \texttt{gpList} argument
 to \texttt{plot}. The default choices are equivalent to 
 <<eval=FALSE,echo=TRUE>>=
-gp <- VennThemes(C3)
-plot(C3,gpList=gp)
+gpList <- VennThemes(C3)
+plot(C3,gpList=gpList)
 @
-The only available high-level modification is that \texttt{VennThemes} can take the \texttt{ColourAlgorithm} style - see the man page for more details.
-Low-level modifications can be made by modifiying the \texttt{gp} argument itself. That must
-be a named list, with elements that can include \texttt{Face},
-\texttt{FaceText},
-\texttt{Set}, and \texttt{SetText}.
-Each of those elements is itself a named list named by either the name of the set or the signature of the face. 
-The elements of these lists in turn are graphical parameters in the sense of
- the \texttt{grid} package, essentially lists of parameter-value pairs.
+Low-level modifications can be using the \texttt{gpList} argument, typically by modifying the value of a call to \texttt{VennThemes}.
+There is more detail on the \texttt{VennThemes} man page about the format of \texttt{gpList}.
+More high-level modifications can be made by supplying the \texttt{ColourAlgorithm} or \texttt{increasingLineWidth} arguments to \texttt{VennThemes}.
 
 \begin{figure}[H]\begin{center}
 <<pwabVmonth3,echo=TRUE,fig=TRUE>>=
@@ -226,6 +183,21 @@ plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 \label{fig:canonicalb}
 \end{center}\end{figure}
 
+The position and format of the set and face annotation are controlled by the data returned by \texttt{VennGetSetLabels} and \texttt{VennGetFaceLabels},
+respectively, which can be modified and then reembedded in the \code{VennDrawing} object with \texttt{VennSetSetLabels} and \texttt{VennSetFaceLabels}.
+
+
+\begin{figure}[H]\begin{center}
+<<pwabVmonth3,echo=TRUE,fig=TRUE>>=
+grid.newpage()
+SetLabels <- VennGetSetLabels(C3)
+SetLabels[SetLabels$Label=="February","y"] <- SetLabels[SetLabels$Label=="March","y"]
+C3 <- VennSetSetLabels(C3,SetLabels)
+plot(C3)
+@
+\caption{Modifying the position of annotation} 
+\label{fig:canonicald}
+\end{center}\end{figure}
 
 \newpage
 \section{Unweighted Venn diagrams}
@@ -471,11 +443,15 @@ computes up to 8 sets for the classic construction.
 <<S47fig,fig=TRUE,cache=TRUE,eval=TRUE>>=
 doans <- function(n) {
 	S4  <- compute.AWFE(Venn(n=n),type="AWFE")
+	if (n==1) { # borrow the universe from the larger picture
+		S5 <- compute.AWFE(Venn(n=2),type="AWFE")
+		S4 <- VennSetUniverseRange(S4,VennGetUniverseRange(S5)
+	}
 	gp <- VennThemes(drawing=S4,colourAlgorithm="binary")
 	plot(S4,gpList=gp,show=list(FaceText="",Faces=TRUE,SetLabels=FALSE,Sets=FALSE))
 }
 grid.newpage()
-pushViewport( viewport(layout=grid.layout(4,2)))
+pushViewport( viewport(layout=grid.layout(3,2)))
 pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
 doans(1)
 upViewport()
@@ -494,13 +470,14 @@ upViewport()
 pushViewport(viewport(layout.pos.row=3,layout.pos.col=2))
 doans(6)
 upViewport()
+if (FALSE) {
 pushViewport(viewport(layout.pos.row=4,layout.pos.col=1))
 doans(7)
 upViewport()
 pushViewport(viewport(layout.pos.row=4,layout.pos.col=2))
 doans(8)
 upViewport()
-
+}
 @
 \caption{Edwards constructions for five to eight sets}
 \end{center}\end{figure}
@@ -512,7 +489,7 @@ It can be drawn by using \texttt{type="battle"} for up to 9 sets.
 
 
 \begin{figure}[H]\begin{center}
-<<S47battle,fig=TRUE,echo=TRUE,eval=TRUE>>=
+<<S47battle,fig=TRUE,echo=TRUE,eval=FALSE>>=
 plot(Venn(n=9),type="battle",show=list(SetLabels=FALSE,FaceText=""))
 @
 \caption{The battlement variant of the Edwards construction on 9 sets with the \texttt{type=battle} argument}
@@ -669,12 +646,9 @@ plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE))
 
 
 \begin{figure}[H]\begin{center}
-<<plotCR4stem,echo=TRUE,fig=TRUE,cache=TRUE>>=
+<<plotCR4stem,echo=FALSE,fig=TRUE,cache=TRUE>>=
 Tstem <- compute.Venn(Vstem)
-gp <- VennThemes(Tstem,colourAlgorithm="sequential")
-gps <- gp[["Set"]]; nSets <- length(gps)
-for (ix in 1:nSets) { gps[[ix]]$lwd <- nSets+1 - ix }
-gp[["Set"]] <- gps
+gp <- VennThemes(Tstem,colourAlgorithm="sequential",increasingLineWidth=TRUE)
 plot(Vstem,type="ChowRuskey",show=list(SetLabels=TRUE),gp=gp)
 @
 \caption{Chow-Ruskey weighted 4-set diagram for the stem cell data}
@@ -897,10 +871,50 @@ the weighted diagrams produced are already Euler diagrams.
 V4z <-  VennFromSets( setList[1:4])
 CK4z <- compute.CR(V4z)
 grid.newpage()
-plot(CK4z,show=list(SetLabels=FALSE,FaceText="elements",Faces=TRUE))
+gp <- VennThemes(CK4z,increasingLineWidth=TRUE)
+plot(CK4z,show=list(SetLabels=FALSE,FaceText="elements",Faces=TRUE),gpList=gp)
 @
 \caption{Chow-Ruskey diagram with some zero weights}
 \end{center}\end{figure}
+
+\newpage
+\section{Some loose definitions}
+Figure \ref{fig:canonical} illustrates membership of three sets,
+in order OCT4, SOX2 , NANOG. 
+Genes which are members of the SOX2 set but not the OCT4 or NANOG sets
+are members of an \emph{intersection subset} with \emph{indicator string} or \emph{signature}
+\texttt{010}.
+
+Given $n$ sets of elements drawn from a universe,
+ there are $2^n$ {intersection subsets}. Each of these is 
+a subset of the universe and there
+is one corresponding to each of the binary strings of length $n$.
+If one of these indicator strings has a 1 in the $i$-th position, all of members of the 
+corresponding intersection subset must be members of the $i$-th set. Depending on the application, the 
+universe of elements from which members of the sets are drawn 
+may be important. 
+Elements in intersection set \texttt{00\ldots}, which are in 
+the universe but not in any known set, are called (by me) \emph{dark matter},
+and we tend to display these differently.
+
+A diagram which produces a visualisation of each of the sets
+as a connected curve in the plane whose regions of intersection
+are connected and correspond to each of the $2^n$ intersection subsets
+is an \emph{unweighted Venn diagram}.
+Weights can be assigned to each of the intersections,
+most naturally being proportional to the number of elements each one contains.
+\emph{Weighted Venn diagrams} have the same topology as unweighted ones, but 
+(attempt to) make the area of each region proportional to the weights. 
+This may not be possible, if any of the weights are zero for example, or because 
+of the geometric constraints of the diagram. Venn diagrams based on 3 circles
+are unable in general to represent even nonzero weights exactly, and cannot be constructed
+at all for $n>3$.
+
+Diagrams in which only those intersections with non-zero weight appear are \emph{Euler diagrams},
+and diagrams which go further and make the area of every intersection proportional to its weight are weighted Euler diagrams.
+For more details and rather more rigour see first the online review of Ruskey and Weston~\cite{ruskeyweston:2005} and then the references it contains.
+
+\newpage
 
 
 \section{This document}

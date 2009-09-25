@@ -79,9 +79,6 @@ Care is taken to keep track of the outside boundary of all of the sets, or equiv
 boundary of the 'dark matter', the Face defined as the region where none of the Sets intersect.
 Nevertheless this portion of the code is currently quite buggy and this can lead to errors in some computed diagrams.
 
-\code{CircleDrawing} and \code{SquaresDrawing} are classes which inherit from \code{TissueDrawing}
-to allow them to override some display-related functions (\code{VisibleRange} and \code{SetLabels} respectively)
-for efficiency or aesthetic purposes.
  }
 
 \examples{

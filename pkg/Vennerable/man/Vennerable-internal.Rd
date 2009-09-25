@@ -5,8 +5,6 @@
 \alias{VDedgeDrawn-class}
 \alias{VDedgeLines-class}
 \alias{VDedgeSector-class}
-\alias{TDEdgeList-class}
-\alias{TDEdgeList-class}
 \alias{.edge.to.xy-methods} 
 \alias{.edge.to.xy,VDedgeLines,missing-method}
 \alias{.edge.to.xy,VDedgeLines,numeric-method} 
@@ -111,7 +109,6 @@
 \alias{PlotSetLabels}
 \alias{PlotUniverse}
 \alias{plotVenn}
-\alias{PlotVennGeometry}
 \alias{plotxygraph}
 \alias{pnpoly}
 \alias{pnpolytest}

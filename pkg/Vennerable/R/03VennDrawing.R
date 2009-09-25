@@ -17,7 +17,8 @@ setGeneric("PlotUniverse",function(object,gp){standardGeneric("PlotUniverse")})
 setGeneric("Areas",function(object){standardGeneric("Areas")}) 
 setGeneric("ComputeAreas",function(object,nintervals){standardGeneric("ComputeAreas")}) 
 setGeneric("VisibleRange",function(object){standardGeneric("VisibleRange")}) 
-setGeneric("UniverseRange",function(object){standardGeneric("UniverseRange")}) 
+setGeneric("VennGetUniverseRange",function(object){standardGeneric("VennGetUniverseRange")}) 
+setGeneric("VennSetUniverseRange",function(object,universe){standardGeneric("VennSetUniverseRange")}) 
 setGeneric("VennSetSetLabels",function(object,SetLabels){standardGeneric("VennSetSetLabels")}) 
 setGeneric("VennGetSetLabels",function(object){standardGeneric("VennGetSetLabels")}) 
 setGeneric("VennSetFaceLabels",function(object,FaceLabels){standardGeneric("VennSetFaceLabels")}) 
@@ -34,8 +35,8 @@ setMethod("show","VennDrawing",function(object) {
 	invisible(	object)
 })
 
-setMethod("UniverseRange","VennDrawing",function(object)object@universe)
-# eg CircleDrawing overrides these methods:
+setMethod("VennGetUniverseRange","VennDrawing",function(object)object@universe)
+setMethod("VennSetUniverseRange","VennDrawing",function(object,universe){object@universe<-universe;object})
 setMethod("VisibleRange","TissueDrawing",function(object){
 	dxxy <- do.call("rbind",lapply(names(object@setList),.face.toxy,type="set",drawing=object))
 	apply(dxxy,2,range)
@@ -61,7 +62,7 @@ setMethod("VennGetFaceLabels","VennDrawing",function(object) {object@FaceLabels}
 
 setMethod("PlotUniverse","VennDrawing", function(object,gp) {
 	if(missing(gp)) { gp <- NULL }
-	uv <- UniverseRange(object)
+	uv <- VennGetUniverseRange(object)
 	grid.rect(x=mean(uv[,1]),y=mean(uv[,2]),
 		width=diff(uv[,1]),height=diff(uv[,2]),default.unit="native",gp=gp)
 	}
@@ -93,8 +94,8 @@ setMethod("PlotUniverse","VennDrawing", function(object,gp) {
 
 
 CreateViewport <- function(object) {
-	xData <- UniverseRange(object)[,1]
-	yData <- UniverseRange(object)[,2]
+	xData <- VennGetUniverseRange(object)[,1]
+	yData <- VennGetUniverseRange(object)[,2]
 	makevp.eqsc(xData,yData)
 }
 
@@ -104,7 +105,7 @@ UpViewports <- function() {
 	upViewport()
 }
 
-VennThemes<- function(drawing,colourAlgorithm) {
+VennThemes<- function(drawing,colourAlgorithm,increasingLineWidth) {
 	gpList <- list()
 	if (is.null(gpList[["Face"]])) {
 		gpList[["Face"]]<- FaceColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
@@ -113,7 +114,7 @@ VennThemes<- function(drawing,colourAlgorithm) {
 		gpList[["FaceText"]] <- FaceTextColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
 	}
 	if (is.null(gpList[["Set"]])) {
-		gpList[["Set"]] <- SetColours(drawing=drawing,colourAlgorithm=colourAlgorithm)
+		gpList[["Set"]] <- SetColours(drawing=drawing,colourAlgorithm=colourAlgorithm,increasingLineWidth)
 	}
 	if (is.null(gpList[["SetText"]])) {
 		gpList[["SetText"]] <- SetTextColours(drawing=drawing)
@@ -199,8 +200,9 @@ SetTextColours <- function(drawing) {
 
 
 
-SetColours <- function(drawing,colourAlgorithm) {
+SetColours <- function(drawing,colourAlgorithm,increasingLineWidth) {
 	if (missing(colourAlgorithm)) { colourAlgorithm <- "sequential"}
+	if (missing(increasingLineWidth)) { increasingLineWidth <- FALSE}
 	nSets <-length(drawing@setList)
 	if (colourAlgorithm=="binary") {
 		setcolours <-rep("blue",nSets)
@@ -213,9 +215,12 @@ SetColours <- function(drawing,colourAlgorithm) {
  		setcolours <-fillcols[1:nSets]; 
 		names(setcolours) <- names(drawing@setList)
 	}
-	gp <- lapply(names(setcolours ),function(x)gpar(col=setcolours [[x]],fill=NA,lty=1,lwd=3)); 	
-	names(gp) <- names(setcolours)
-	gp
+	gpList <- lapply(names(setcolours ),function(x)gpar(col=setcolours [[x]],fill=NA,lty=1,lwd=3)); 	
+	if (increasingLineWidth) {
+		gpList <- lapply(1:nSets,function(x){gp <- gpList[[x]];gp$lwd <- nSets - x + 1; gp})
+	}
+	names(gpList ) <- names(setcolours)
+	gpList 
 }
 
 
@@ -368,7 +373,7 @@ makevp.eqsc <- function(xrange,yrange) {
 	}
 
 PlotDarkMatter <- function(VD) {
-	ur <- UniverseRange(VD)
+	ur <- VennGetUniverseRange(VD)
 	grey <- brewer.pal(8,"Greys")[2]
 	grid.polygon(x=ur[c(1,1,2,2),1],y=ur[c(1,2,2,1),2],gp=gpar(fill=grey))
 	.PlotFace.TissueDrawing(VD,"DarkMatter",gp=gpar(fill="white"),doDarkMatter=TRUE)
