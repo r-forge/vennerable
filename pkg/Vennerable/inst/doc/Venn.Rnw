@@ -155,7 +155,8 @@ Other elements of the parameter control whether, for example, set names are disp
 
 \begin{figure}[H]\begin{center}
 <<pwabVmonth3sig,echo=TRUE,fig=TRUE>>=
-plot(C3,show=list(FaceText="signature",SetLabels=FALSE,Faces=FALSE))
+grid.newpage()
+plot(C3,show=list(FaceText="signature",SetLabels=FALSE,Faces=FALSE,DarkMatter=FALSE))
 @
 \caption{The same Venn diagram with different \texttt{show} parameters} 
 \label{fig:canonicals}
@@ -184,7 +185,7 @@ plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
 \end{center}\end{figure}
 
 The position and format of the set and face annotation are controlled by the data returned by \texttt{VennGetSetLabels} and \texttt{VennGetFaceLabels},
-respectively, which can be modified and then reembedded in the \code{VennDrawing} object with \texttt{VennSetSetLabels} and \texttt{VennSetFaceLabels}.
+respectively, which can be modified and then reembedded in the \texttt{VennDrawing} object with \texttt{VennSetSetLabels} and \texttt{VennSetFaceLabels}.
 
 
 \begin{figure}[H]\begin{center}
@@ -223,7 +224,7 @@ of the vignette at \texttt{PACKAGETREE/Vennerable/doc/Venn.Rnw} where \texttt{PA
 
 
 <<echo=FALSE>>=
-showe <- list(FaceText="elements",Faces=TRUE)
+showe <- list(FaceText="elements",Faces=TRUE,DarkMatter=FALSE)
 
 doAnnotatedVP <- function(TD,annotation,show) {
 	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
@@ -376,24 +377,12 @@ plotV4uw(V4)
 A number of variants on the \texttt{squares} type are implemented. Currently they can only be accessed
 by passing the parameters \texttt{s} or \texttt{likesquares} to the low level creation function \texttt{compute.S4} directly,
 which is what is done in Figure~\ref{fig:4sq4}.
-Also, note how the set boundaries have differing line thicknesses.
-<<defs,echo=FALSE>>=
-gpSquare <- function(aVennDrawing) {
-	gp <- VennThemes(aVennDrawing)
-	gps <- gp[["Set"]]
-	for (ix in 1:length(names(gps))) {
-		gps[[names(gps)[ix]]]$lwd <- 5 - ix
-	}
-	gp[["Set"]] <- gps
-	gp
-}
-@
 
 
 <<S4figdef,echo=FALSE>>=
 dosans <- function(V4,s,likeSquares,showe) {
 	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
-	gp <- gpSquare(S4)
+	gp <- VennThemes(S4,increasingLineWidth=TRUE)
 	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
 	pushViewport(viewport(layout=anlay))
 	txt <- sprintf("compute.S4(V4,s=%f,likeSquares=%f)",s,likeSquares)
@@ -410,20 +399,20 @@ For more details on this see the help pages for \texttt{compute.S4}.
 
 \begin{figure}[H]\begin{center}
 <<S4fig,fig=TRUE>>=
-showe <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature")
+shows4 <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature",DarkMatter=FALSE)
 grid.newpage()
 pushViewport( viewport(layout=grid.layout(2,2)))
 pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
-dosans(V4,s=0.2,likeSquares=FALSE,showe)
+dosans(V4,s=0.2,likeSquares=FALSE,shows4 )
 upViewport()
 pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
-dosans(V4,s=0,likeSquares=FALSE,showe)
+dosans(V4,s=0,likeSquares=FALSE,shows4 )
 upViewport()
 pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
-dosans(V4,s=0.2,likeSquares=TRUE,showe)
+dosans(V4,s=0.2,likeSquares=TRUE,shows4 )
 upViewport()
 pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
-dosans(V4,s=0,likeSquares=TRUE,showe)
+dosans(V4,s=0,likeSquares=TRUE,shows4 )
 upViewport()
 
 @
@@ -445,7 +434,7 @@ doans <- function(n) {
 	S4  <- compute.AWFE(Venn(n=n),type="AWFE")
 	if (n==1) { # borrow the universe from the larger picture
 		S5 <- compute.AWFE(Venn(n=2),type="AWFE")
-		S4 <- VennSetUniverseRange(S4,VennGetUniverseRange(S5)
+		S4 <- VennSetUniverseRange(S4,VennGetUniverseRange(S5))
 	}
 	gp <- VennThemes(drawing=S4,colourAlgorithm="binary")
 	plot(S4,gpList=gp,show=list(FaceText="",Faces=TRUE,SetLabels=FALSE,Sets=FALSE))
@@ -611,7 +600,7 @@ an area-proportional drawing under some contraints on the weights (detailed else
 <<plotT3,echo=TRUE,fig=TRUE>>=
 grid.newpage()
 C3t <- compute.Venn(V3a,type="triangles")
-plot(C3t,show=list(SetLabels=FALSE))
+plot(C3t,show=list(SetLabels=FALSE,DarkMatter=FALSE))
 @
 \caption{Weighted Triangular Venn diagram}
 \end{center}
@@ -627,7 +616,7 @@ the weight of the common intersection is nonzero. In practice the package is lim
 
 \begin{figure}[H]\begin{center}
 <<plotCR3,echo=TRUE,fig=TRUE>>=
-plot(V3a,type="ChowRuskey",show=list(SetLabels=FALSE))
+plot(V3a,type="ChowRuskey",show=list(SetLabels=FALSE,DarkMatter=FALSE))
 @
 \caption{Chow-Ruskey weighted 3-set diagram}
 \end{center}
@@ -638,7 +627,7 @@ plot(V3a,type="ChowRuskey",show=list(SetLabels=FALSE))
 @
 <<plotCR4,echo=TRUE,fig=TRUE,cache=TRUE>>=
 V4a <- Venn(SetNames=LETTERS[1:4],Weight=16:1)
-plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE))
+plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE,DarkMatter=FALSE))
 @
 \caption{Chow-Ruskey weighted 4-set diagram}
 \end{center}
@@ -647,9 +636,9 @@ plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE))
 
 \begin{figure}[H]\begin{center}
 <<plotCR4stem,echo=FALSE,fig=TRUE,cache=TRUE>>=
-Tstem <- compute.Venn(Vstem)
+Tstem <- compute.Venn(Vstem,type="ChowRuskey")
 gp <- VennThemes(Tstem,colourAlgorithm="sequential",increasingLineWidth=TRUE)
-plot(Vstem,type="ChowRuskey",show=list(SetLabels=TRUE),gp=gp)
+plot(Tstem,show=list(SetLabels=TRUE),gp=gp)
 @
 \caption{Chow-Ruskey weighted 4-set diagram for the stem cell data}
 \end{center}

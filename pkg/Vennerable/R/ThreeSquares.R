@@ -65,10 +65,22 @@ compute.S2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 	VD <- new("VennDrawing",TM,V)
 	VD <- .square.universe(VD,doWeights)
 	SetLabels <- .default.SetLabelPositions(VD)
+	SetLabels[1,c("x","y")] <- c(l1,s1/2)
 	SetLabels[2,"hjust"] <- "right"
-	SetLabels[2,"x"] <- r2
+	SetLabels[2,c("x","y")] <- c(r2,s2/2)
 	VD <- VennSetSetLabels(VD,SetLabels)
 	FaceLabels <- .default.FaceLabelPositions(VD)
+		if (s1 < s2) {
+		dmxy <- c(l1,s1/2)
+	} else if (s1>2) {
+		dmxy <- c(r1,s2/2)
+	} else {
+		dmxy <-c (r1,s2/2 * 1.05)
+	}
+	FaceLabels[FaceLabels$FaceName=="DarkMatter",c("x","y")] <- dmxy
+	FaceLabels[FaceLabels$FaceName=="11","x"] <- (l2+r1)/2
+	FaceLabels[FaceLabels$FaceName=="10","x"] <- (l1+l2)/2
+	FaceLabels[FaceLabels$FaceName=="01","x"] <- (r1+r2)/2
 	VD <- VennSetFaceLabels(VD,FaceLabels)
 
 #	VS <- new("SquareDrawing",VD)

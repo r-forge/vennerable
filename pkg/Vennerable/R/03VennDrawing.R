@@ -233,6 +233,10 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 	if (length(unshown)>0) {
 		warning(sprintf("Unknown show parameters %s",paste(unshown,collapse=",")))
 	}
+	dmw <- Weights(C3)[dark.matter.signature(C3)]
+	if (!is.na(dmw) & dmw > 0 ) {
+		show.default$DarkMatter <- TRUE
+	}
 	show <- show[names(show) %in% names(show.default)]
 
 	show.default[names(show)] <- show
@@ -249,9 +253,9 @@ PlotVennGeometry <- function(C3,gpList,show=list(FaceText="weight")) {
 	if(show.default$Universe) {
 		PlotUniverse(C3)
 	}
-	if(show.default$DarkMatter) {
-		PlotDarkMatter(C3)
-	}
+#	if(show.default$DarkMatter) {
+#		PlotDarkMatter(C3)
+#	}
 	if (show.default$Faces) {
 		PlotFaces(C3,gp=gp[["Face"]])
 	}
@@ -337,6 +341,7 @@ PlotIntersectionText <- function(object,gp,element.plot="weight",show.dark.matte
 	df$vjust <- I("centre")
 	df[df$Signature==dm,c("hjust")] <- c("right")
 	df[df$Signature==dm,c("vjust")] <- c("top")
+	df[df$Signature==dm,c("x","y")] <- VisibleRange(object)[2,]
 	df
 }
 
