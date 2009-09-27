@@ -189,7 +189,7 @@ respectively, which can be modified and then reembedded in the \texttt{VennDrawi
 
 
 \begin{figure}[H]\begin{center}
-<<pwabVmonth3,echo=TRUE,fig=TRUE>>=
+<<pwabVmonth3x2,echo=TRUE,fig=TRUE>>=
 grid.newpage()
 SetLabels <- VennGetSetLabels(C3)
 SetLabels[SetLabels$Label=="February","y"] <- SetLabels[SetLabels$Label=="March","y"]
@@ -478,7 +478,7 @@ It can be drawn by using \texttt{type="battle"} for up to 9 sets.
 
 
 \begin{figure}[H]\begin{center}
-<<S47battle,fig=TRUE,echo=TRUE,eval=FALSE>>=
+<<S47battle,fig=TRUE,echo=TRUE,eval=TRUE>>=
 plot(Venn(n=9),type="battle",show=list(SetLabels=FALSE,FaceText=""))
 @
 \caption{The battlement variant of the Edwards construction on 9 sets with the \texttt{type=battle} argument}
@@ -558,12 +558,6 @@ for proportionality, and then compute each of the three pairwise distances
 between centres necessary for the correct pairwise areas. If these distances do not satisfy the triangle inequality
 the largest is reduced until they do. Then the circles are arranged with their centres
 separated by these (possibly modified) distances.
-
-
-<<Vdemo,echo=FALSE,eval=FALSE>>=
-V3 <- Venn(SetNames=month.name[1:3])
-Weights(V3) <- c(0,81,81,9,81,9,9,1)
-@
 
 
 \newpage

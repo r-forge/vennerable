@@ -1005,7 +1005,9 @@ faceAreas <- function(drawing) {
 
 .face.centroid <- function(drawing,faceName) {
 	all.xy <- .face.toxy(drawing,faceName)
-	.polygon.centroid(all.xy)
+	res <- .polygon.centroid(all.xy)
+	names(res) <- "centroid"
+	res
 }
 
 .PlotFace.TissueDrawing <- function(drawing,faceName,dx=0.05,gp=gpar(),doDarkMatter=FALSE) {
@@ -1088,44 +1090,31 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 		drawing <- renameFaces(drawing,"DarkMatter",faceName)
 		# has the effect of treating as an ordinary face
 	}
-	faceCentroid <- .face.centroid(drawing,faceName=faceName);
-	rownames(faceCentroid)<-"centroid"
-	if (.is.point.within.face(drawing,faceName,faceCentroid)) {
-		return(faceCentroid)
+	edgeClasses <- .faceEdgeClasses(drawing,faceName)
+	if (all(edgeClasses=="VDedgeSector") & length(edgeClasses)==2) {
+		aPoint <- 	.face.midplace(drawing,faceName)
+		if (.is.point.within.face(drawing,faceName,aPoint )) {
+			return(aPoint )
+		} else {
+			aPoint <- .face.centroid(drawing,faceName=faceName)
+			if (.is.point.within.face(drawing,faceName,aPoint )) {
+				return(aPoint )
+			}
+		} 
+	} else { #otherwise test in other order
+		aPoint <- 	.face.centroid(drawing,faceName=faceName)
+		if (.is.point.within.face(drawing,faceName,aPoint )) {
+			return(aPoint )
+		} else {
+			aPoint <- .face.midplace(drawing,faceName=faceName);
+			if (.is.point.within.face(drawing,faceName,aPoint )) {
+				return(aPoint )
+			}
+		} 
 	}
-#browser()
-	# hmm. try the midpoint of each edge and form the centroid of those
-	# will be exactly what we want for two intersceting circle sectors
-	aPoint <- 	.face.midplace(drawing,faceName)
-	if (.is.point.within.face(drawing,faceName,aPoint )) {
-		return(aPoint )
-	}
 
+	# ok, just try and find some corner guaranteed to be inside
 
-	if (FALSE) { # old method 
-	# find a point on the edge which is ideally not a node
-	amidpoint <- .find.point.on.face(drawing,faceName)
-
-	# create a line from the centroid to past that point, and call it a chord
-	chord.from.xy <- faceCentroid 
-	grad <- faceCentroid-amidpoint; grad <- grad/sqrt(sum(grad^2))
-	maxradius <- .face.maxradius(drawing,faceName)
-	chord.to.xy <- amidpoint- maxradius*grad
-
-	npoints <- .probe.chord.intersections(drawing,faceName,chord.from.xy,chord.to.xy)
-
-	cix <- which(rownames(npoints)=="centroid")	
-	if (cix-2 > 0) {
-		q1 <- npoints[cix-2,,drop=FALSE];
-		q2 <- npoints[cix-1,,drop=FALSE]
-	} else if (cix+2 <= nrow(npoints) ){
-		q1 <- npoints[cix+1,,drop=FALSE];
-		q2 <- npoints[cix+2,,drop=FALSE]
-	} else{ stop(sprintf("Error in finding a point in face %s",faceName))}
-	qmid <- (q1+q2)/2
-	rownames(qmid) <- faceName
-		return(qmid)
-	} # old method
 	ear.triangle <- .find.triangle.within.face(drawing,faceName)
 	earCentroid <- .polygon.centroid(ear.triangle)
 	if (!	.is.point.within.face(drawing,faceName,earCentroid )) {
