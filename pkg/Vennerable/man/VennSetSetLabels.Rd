@@ -19,8 +19,8 @@ VennGetSetLabels(object)
 VennSetSetLabels(object, SetLabels)
 VennGetFaceLabels(object)
 VennSetFaceLabels(object, FaceLabels)
-VennGetUniverse(object)
-VennSetUniverse(object, universe)
+VennGetUniverseRange(object)
+VennSetUniverseRange(object, universe)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
