@@ -30,8 +30,10 @@ a number of methods for plotting the final figure.
 }
 \section{Slots}{
 	 \describe{
-    \item{\code{universe}:}{A \code{"matrix"} with the $x$ and $y$ coordinates of the bounding universe. Currently assumed to have 2 rows by much of the code, corresponding to the lower left and upper right corners of a bounding rectangle}
-    \item{\code{setList}:}{See \code{\link{TissueDrawing-class}}  }
+    \item{\code{universe}:}{A \code{matrix} with the \eqn{x} and \eqn{y} coordinates of the bounding universe. Currently assumed to have 2 rows by much of the code, corresponding to the lower left and upper right corners of a bounding rectangle}
+    \item{\code{SetLabels}:}{A data.frame encoding the positions of labels for the Sets}
+      \item{\code{FaceLabels}:}{A data.frame encoding the positions of labels for the Faces}
+  	\item{\code{setList}:}{See \code{\link{TissueDrawing-class}}  }
     \item{\code{nodeList}:}{See \code{\link{TissueDrawing-class}} }
     \item{\code{recentChanges}:}{See \code{\link{TissueDrawing-class}}}
     \item{\code{edgeList}:}{See \code{\link{TissueDrawing-class}} }
