@@ -10,7 +10,7 @@
 \alias{.edge.to.xy,VDedgeLines,numeric-method} 
 \alias{.edge.to.xy,VDedgeSector,missing-method} 
 \alias{.edge.to.xy,VDedgeSector,numeric-method}
-\alias{.checkPointOnEdge-methods} h
+\alias{.checkPointOnEdge-methods}
 \alias{.checkPointOnEdge,VDedgeLines-method}
 \alias{.checkPointOnEdge,VDedgeSector-method}
 \alias{.findIntersectionByType-methods} 
