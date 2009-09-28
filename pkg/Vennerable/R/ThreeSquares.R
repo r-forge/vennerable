@@ -1,13 +1,5 @@
 #warning("Entering ThreeSquares")
 
-#setClass("SquareDrawing",representation("VennDrawing"))
-#setMethod("SetLabelPositions","SquareDrawing",function(object) {
-##	VLabel <- SetLabelPositions(as(object,"VennDrawing"))
-#	if (nrow(VLabel)==2) {
-#		VLabel[2,"hjust"] <- "right"
-#	}
-#	VLabel
-#})
 	
 
 
@@ -83,8 +75,6 @@ compute.S2 <- function(V,doWeights=TRUE,doEuler=FALSE) {
 	FaceLabels[FaceLabels$FaceName=="01","x"] <- (r1+r2)/2
 	VD <- VennSetFaceLabels(VD,FaceLabels)
 
-#	VS <- new("SquareDrawing",VD)
-#	VS
 }
 
 
@@ -312,6 +302,23 @@ compute.S4 <- function(V,doWeights=FALSE,s=.25,likeSquares=TRUE) {
 	}
 	VD <- new("VennDrawing",TM,V)
 	SetLabels <- .default.SetLabelPositions(VD)
+	smidge <- 0.01 * 4
+	SetLabels[1,c("x","y")] <- c(0,-2-s-smidge)
+	SetLabels[2,c("x","y")] <- c(2+s,2+s+smidge)
+	SetLabels[3,c("x","y")] <- c(1,-2  -smidge)
+	SetLabels[4,c("x","y")] <- c(2,-1  -smidge)
+	SetLabels[1,c("hjust","vjust")] <- c("right","top")
+	SetLabels[2,c("hjust","vjust")] <- c("right","bottom")
+	SetLabels[3,c("hjust","vjust")] <- c("right","top")
+	SetLabels[4,c("hjust","vjust")] <- c("right","top")
+	if (!likeSquares) {
+		SetLabels[3,c("x","y")] <- SetLabels[3,c("x","y")] + c(-0.5,0.5)
+		SetLabels[4,c("x","y")] <- SetLabels[4,c("x","y")] + c(-0.5,0.5)
+		SetLabels[3,c("hjust","vjust")] <- c("left","center")
+		SetLabels[4,c("hjust","vjust")] <- c("left","center")
+	}
+
+
 	VD <- VennSetSetLabels(VD,SetLabels)
 	FaceLabels <- .default.FaceLabelPositions(VD)
 	if (s>0) { # want the coordinates of face midpoints if s=0
