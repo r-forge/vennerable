@@ -4,8 +4,10 @@
 \alias{VennGetSetLabels}
 \alias{VennSetFaceLabels}
 \alias{VennGetFaceLabels}
-\alias{VennSetUniverse}
-\alias{VennGetUniverse}
+\alias{VennSetUniverseRange}
+\alias{VennGetUniverseRange}
+\alias{VennGetUniverseRange,VennDrawing-method}
+\alias{VennSetUniverseRange,VennDrawing-method}
 \title{
 Set and get annotation labels and graphical styles
 }

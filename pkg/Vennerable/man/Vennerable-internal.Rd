@@ -123,7 +123,6 @@
 \alias{set.function}
 \alias{SetColours}
 \alias{Setfun}
-\alias{SetLabelPositions}
 \alias{VennSetNames}
 \alias{setSignature}
 \alias{SetTextColours}
