@@ -33,17 +33,20 @@ EulerClasses <- function(numberOfSets) {
 	# with the corresponding row names
 	E3 <- do.call(rbind,P2)
 	F3 <- unique(apply(E3,2,function(x)(unique(sort(x)))))
-	iclasses <- (sapply(F3,paste,collapse=";"))
-	rclasses <- sapply(F3,function(x)x[1])
-	irclasses <- data.frame(ESignature=rclasses,iclasses=iclasses,stringsAsFactors=FALSE)
-	Eclass <- merge(E2,irclasses)
-	rownames(Eclass) <- 1:nrow(Eclass)
-	Eclass <- Eclass[order(Eclass$ESignature),]
+	Emap <- do.call(rbind,lapply(F3,function(x)data.frame(ESignature=x,ESignatureCanonical=x[1])))
+	Eclass <- merge(E2,Emap)
+	#names(F3) <- sapply(F3,function(x)x[1])
 
-	#However some of these (eg 0000010) correspond to
+	#iclasses <- (sapply(F3,paste,collapse=";"))
+	#rclasses <- sapply(F3,function(x)x[1])
+	#irclasses <- data.frame(ESignature=rclasses,iclasses=iclasses,stringsAsFactors=FALSE)
+	#Eclass <- merge(E2,irclasses)
+	#rownames(Eclass) <- 1:nrow(Eclass)
+	#Eclass <- Eclass[order(Eclass$ESignature),]
+	# now Eclass has one row for every distinct Euler pattern up to permutation
+	#However some of these  correspond to
 	#patterns in which every region at least one set is empty.
-	vsnames <- names(E2[,!colnames(E2)%in% c("ESignature","iclasses")])
-
+	vsnames <- names(E2[,!colnames(E2)%in% c("ESignature","ESignatureCanonical")])
 	vsmat <- do.call(rbind,strsplit(vsnames,split=""))
 	isset <- lapply(1:ncol(vsmat),function(col)vsnames[vsmat[,col]=="1"])
 	haveset <- sapply(isset,function(setsigs)apply(Eclass[,setsigs],1,sum)>0)
