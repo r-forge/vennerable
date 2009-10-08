@@ -1574,19 +1574,23 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	tempface2Name <- ".aSTD.temp";
 	drawing2 <- renameFaces(drawing2,face2Name,tempface2Name)
 
-
-	# first we need to calculate a list of all the intersections and add them in
+	# check for name clashes, and also for identical points with different names
 	new2 <- .check.clashes(drawing1,drawing2)
+
+	# calculate a list of all the intersections and add them in as points
 	res <- .add.intersection.points(drawing1=drawing1,drawing2=new2)
 	new1=res$new1;new2=res$new2;intersectionPoints=res$intersectionPoints
+
+	# we may have two edges with different names but identical geometry, if so use the name from diagram1
 	res <- .check.duplicate.edges(drawing1=new1,drawing2=new2)
 	new1<- res$new1; new2 <- res$new2
+
+	# edges only in diagram2 need to be added to diagram1
 	posnames <- sub("^-","",names(new2@edgeList)); negnames <- paste("-",posnames,sep="")
 	newEdges <- new2@edgeList[! (posnames %in% names(new1@edgeList) | negnames %in% names(new1@edgeList)) ]
 	new1@edgeList <- c(new1@edgeList,newEdges)
-	# need to do this in case we relabelled an edge that a face relies on
+	# for lookups below, need to do the same in diagram2 in case we relabelled an edge that a face relies on
 	new2@edgeList <- c(new2@edgeList,new1@edgeList[!names(new1@edgeList) %in% names(new2@edgeList)])
-
 
 
 	# that will have updated the single set in new2
