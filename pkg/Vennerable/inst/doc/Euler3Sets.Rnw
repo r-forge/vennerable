@@ -43,6 +43,7 @@ are symmetric under a relabelling of the original sets.
 How many distinct zero-patterns are there, allowing set relabelling?
 
 <<>>=
+library(Vennerable)
 library(xtable)
 vs <- expand.grid(A=c(0,1),B=c(0,1),C=c(0,1))
 vs$VS <- apply(data.matrix(vs[,1:3]),1,paste,collapse="")
@@ -123,10 +124,22 @@ E3List <- lapply(Ehave$VS,function(VS){
 })
 names(E3List) <- Ehave$VS
 
+efails <- sapply(names(E3List),function(x) {
+	V <- Venn(Weight=E3List[[x]],SetNames=LETTERS[1:3])
+	res <- try(compute.Venn(V))
+	if (inherits(res,"try-error")) {
+		tres <- TRUE
+	} else {
+		grid.newpage()
+		plot(res)
+		tres <- FALSE
+	}
+	tres
+})
+names(efails) <- names(E3List)
 
-V <- Venn(Weight=E3List[["0000001"]],SetNames=LETTERS[1:3])
-C3 <- try(compute.Venn(V))
-}
+efails[efails]
+
 @
 
 \cite{edwards:2004}
