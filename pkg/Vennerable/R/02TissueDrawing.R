@@ -380,12 +380,6 @@ setMethod("joinEdges",c("VDedgeSector","VDedgeSector"),function(object1,object2)
 sector.to.xy <-  function(edge,dx=.05) {
 	r <- edge@radius;
 	hand <- edge@hand
-#	if (edge@from==edge@to ) { 
-#		(if (thetafrom - thetato
-#		thetato <- theta
-#		if (hand>0) { thetafrom <- 2*pi; thetato <- 0 } else { thetafrom <- 0; thetato <- 2*pi}
-#		thetadist <- 2 * pi
-#	} else {
 		thetafrom <- edge@fromTheta;thetato <- edge@toTheta
 		# if hand > 0 we always go anti-clockwise, decreasing thetafrom 
 		# so thetato must be less  than thetafrom
@@ -397,9 +391,8 @@ sector.to.xy <-  function(edge,dx=.05) {
 			if (thetato<thetafrom)  { thetato <- thetato + 2* pi } 
 			thetadist <- thetato - thetafrom
 		}
-#	}
 	arclength <- (thetadist) * r
-	nintervals <- arclength/dx
+	nintervals <- max(3,arclength/dx)
 	theta <- seq(from=thetafrom,to=thetato,length=nintervals)
 	xy <- .theta.to.point.xy(theta,r,edge@centre)
 }
@@ -997,8 +990,12 @@ faceAreas <- function(drawing) {
 	xy1 <- all.xy; xy2 <- all.xy[ c(2:nrow(all.xy),1),]
 	x1 <- xy1[,1];y1 <-xy1[,2];x2<-xy2[,1];y2<- xy2[,2]
 	area <- .polygon.area(all.xy)
+	if (area>0) {
 	cx <- sum((x1+x2) * ( x1 * y2 - x2 * y1))/(6* area)
 	cy <- sum((y1+y2) * ( x1 * y2 - x2 * y1))/(6* area)
+	} else {
+		cx <- mean(x1);cy <- mean(y1)
+	}
 	centroid.xy <- matrix(c(cx,cy),ncol=2)
 	centroid.xy
 }
@@ -1126,6 +1123,10 @@ setMethod("PlotFaces","TissueDrawing",.PlotFaces.TissueDrawing)
 .find.triangle.within.face <- function(drawing,faceName) {
 	# poor mans triangulation... subtracting ear method cf wikipedia polygon triangulation
 	xy <- .face.toxy(drawing,faceName)
+	A <- .face.area(drawing,faceName)
+	if (A==0) { # collinear
+		return(xy[1:3,])
+	}
 	xy <- rbind(xy,xy[1:2,])
 	fix <- NA
 	for (ix in 2:(nrow(xy)-1)) {
@@ -1606,7 +1607,11 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	face2IntersectionPoints <- intersect(face2Points,intersectionPoints)
 
 	if (length(face2IntersectionPoints)==0) {
-		new1 <- .addNonintersectingFace(new1,drawing2,tempface2Name) 
+		if (length(newEdges)==0) {
+			new1 <- .addSetWithExistingEdges(new1,drawing2,tempface2Name)
+		} else {
+			new1 <- .addNonintersectingFace(new1,drawing2,tempface2Name) 
+		}
 		if (!inherits(new1,"TissueDrawing")) { return(NA) } # when we can't build an invisible edge joining the two faces
 	} else { 
 		new1 <- .addIntersectingFace(new1,new2,tempface2Name,face2IntersectionPoints)
@@ -1619,6 +1624,24 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	new1
 
 
+}
+
+
+.addSetWithExistingEdges<- function(drawing1,drawing2,tempface2Name) {
+	# the new Set is solely comprised of existing edges 
+	# so there are no new faces
+	# all we need to do is update the signatures
+	# probably an easier way to do this, by tracking which edges came from which sets...
+	# but we just cycle through the faces and update through brute force
+
+
+	for (faceName in setdiff(.faceNames(drawing1),"DarkMatter")) {
+		aPoint <- .find.point.within.face(drawing1,faceName)
+		inFace <- .is.point.within.face(drawing=drawing1,faceName=tempface2Name,point.xy=aPoint,type="set")
+		inFaceSig <- if (inFace) { "1"} else {"0"}
+		drawing1<- updateSignature(drawing1,faceName,inFaceSig )
+	}
+	drawing1
 }
 
 .addNonintersectingFace <- function(drawing1,drawing2,tempface2Name) {
@@ -1857,36 +1880,6 @@ addSetToDrawing <- function(drawing1,drawing2,set2Name,remove.points=FALSE) {
 	faceEdgeList
 }
 
-if(FALSE){
-.create.edge.joining.faces <- function(drawing,outerFaceName,innerFaceName) {
-	outerPoints <- .points.of.face(drawing,outerFaceName)
-	innerPoints <- .points.of.face(drawing,innerFaceName)
-	foundEdge <- NULL
-	for (op in outerPoints) {
-		for (ip in innerPoints) {
-			xy <- do.call(rbind,drawing@nodeList[c(op,ip)])
-			testEdge <- newEdgeLines(from=op,to=ip,xy=xy,visible=FALSE)	
-			# does it intersect any existing edges? 
-			if (!.internal.edge.drawing.intersection(drawing,testEdge)) {	
-				foundEdge <- testEdge
-				break
-			}
-		}
-		if (!is.null(foundEdge)) { break }
-	}
-	if (is.null(foundEdge)) {	
-#		cat("Try specifying different points for internal face") 
-		return(list(ok=FALSE))
-		# try the xy points themselves, sigh
-		
-	}
-	edgeName <- paste(op,ip,"invisible",sep="|")
-	tel <- list(testEdge); names(tel) <- edgeName
-	drawing@edgeList <- c(drawing@edgeList,tel)
-	return(list(edgeName=edgeName,drawing=drawing,ok=TRUE))
-	
-}
-}
 
 
 
@@ -2210,16 +2203,28 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
 }
 
 .merge.faces.invisibly.split <- function(diagram) {
+	doneamerge<- TRUE
+	while (doneamerge) {
+		res <- .try.merge.faces.invisibly.split(diagram)
+		doneamerge <- res$merged
+		diagram <- res$diagram
+	}
+	diagram
+}
+
+.try.merge.faces.invisibly.split <- function(diagram) {
+	# first we identify multople faces with the same signature
 	fsigs <- data.frame(cbind(Name=unlist(.faceNames(diagram)),Signature=unlist(.faceSignatures(diagram))),stringsAsFactors=FALSE);
 	rownames(fsigs)<- 1:nrow(fsigs)
 	nSets <- unique(nchar(setdiff(fsigs$Signature,"DarkMatter")))
 	fsigs$Signature[fsigs$Signature==paste(rep("0",nSets),collapse="")] <- "DarkMatter"
-	w <- lapply(split(fsigs$Name,fsigs$Signature),length)
-	w <- w[w>1]
-	if (length(w)>0) {
-		for (wn in names(w)) {
+	FacesPerSignature <- lapply(split(fsigs$Name,fsigs$Signature),length)
+	FacesPerSignature <- FacesPerSignature [FacesPerSignature >1]
+	doingamerge <- FALSE
+	if (length(FacesPerSignature )>0) {
+		for (wn in names(FacesPerSignature )) {
 			wnames <- fsigs$Name[fsigs$Signature==wn]
-			if (length(wnames)!=2) { stop("Can't merge multiple invisibly split faces")}
+			if (length(wnames)!=2) { warning("Can't merge multiple invisibly split faces, just trying first two")}
 			faceEdges1 <- .face.to.faceEdges(diagram,wnames[1])
 			faceVisible1 <- sapply(faceEdges1,function(x)x@visible)	
 			if (all(faceVisible1)) { break; }		
@@ -2228,6 +2233,7 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
 			if (all(faceVisible2)) { break; }		
 			commonInvisibleEdges <- intersect(sub("^-","",names(faceEdges1)),sub("^-","",names(faceEdges2)))
 			if (length(commonInvisibleEdges)==0) break;
+			doingamerge <- TRUE
 			firstVisibleIx <- min(which(faceVisible1))
 			firstVisibleFrom <- faceEdges1[[firstVisibleIx ]]@from
 			diagram<- .startFaceAtPoint(diagram,wnames[1],firstVisibleFrom )
@@ -2256,6 +2262,6 @@ joinEdgesInDrawing <- function(drawing,inedgeName ,outedgeName) {
 			diagram@edgeList[lostedges] <- NULL
 		}
 	}
-	diagram
+	return(list(diagram=diagram,merged=doingamerge))
 }
 	

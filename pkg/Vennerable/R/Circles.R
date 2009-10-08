@@ -268,17 +268,21 @@ if (doWeights) {
 		if (cp+a < b ) {
 			b <- (cp+a)*smidge
 		}
-
-		# use the SSS rule to compute angles in the triangle
-		CP <- acos( (a^2+b^2-cp^2)/(2*a*b))
-		B <- acos( (a^2+cp^2-b^2)/(2*a*cp))
-		A <- acos( (cp^2+b^2-a^2)/(2*b*cp)) 
-		# arbitrarily bisect one and calculate xy offsets from first centre
-		theta <- B/2
-		o21 <- cp * c( sin(theta), - cos(theta))
-		o31 <- a * c( -sin(B-theta),	-cos(B-theta))
-		# pick a centre for the first one
+		# pick a centre for the first one	
 		c1 <- c(0, dList12$r1)
+		# then place the others
+		if (a==0 || b==0 || cp==0) {
+			o21 <- cp *c(1,0) ; o31 <- a * c(0,1)
+		} else {
+			# use the SSS rule to compute angles in the triangle
+			CP <- acos( (a^2+b^2-cp^2)/(2*a*b))
+			B <- acos( (a^2+cp^2-b^2)/(2*a*cp))
+			A <- acos( (cp^2+b^2-a^2)/(2*b*cp)) 
+			# arbitrarily bisect one and calculate xy offsets from first centre
+			theta <- B/2
+			o21 <- cp * c( sin(theta), - cos(theta))
+			o31 <- a * c( -sin(B-theta),	-cos(B-theta))
+		}
 		c2 <- c1 + o21
 		c3 <- c1 + o31
 		C3 <- ThreeCircles(r=c(dList12$r1,dList12$r2,dList31$r1),
