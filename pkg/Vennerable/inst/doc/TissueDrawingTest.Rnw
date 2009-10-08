@@ -72,7 +72,8 @@ Edge names are unique.
 Most edges form the boundaries of both Faces and Sets. The exception is invisible edges which are added between otherwise disjoint sets 
 to ensure the diagram is not disjoint.
 
-
+Edges have bounding boxes in the \texttt{\@bb} slot, although I am not sure if these are always correctly updated upon the joining 
+or splitting of edges.
 
 \subsection{The VDedgeSector object}
 A \texttt{VDedgeSector} object inherits from a \texttt{VDedgeDrawn} one.
@@ -155,8 +156,15 @@ grid.points(x=aPoint[1],y=aPoint[2],default.units="native",pch=4)
 \end{center}\end{figure}
 
 \section{Joining disjoint faces}
+<<>>=
+.PlotArcs <- function(drawing,edgeNames) {
+	if (missing(edgeNames)) { edgeNames=names(drawing@edgeList)}
+	exy <- lapply(drawing@edgeList[edgeNames],.edge.to.xy)
+	lapply(exy,function(xy){grid.lines(xy[,1],xy[,2],arrow=arrow(),default.units="native")})
+	}
 
-<<defjoint>>=
+
+<<defjoint,fig=TRUE>>=
 VD2 <- compute.Venn(Venn(n=2))
 VD3 <- newTissueFromCircle (centre.xy =c(2,0), radius=.6,Set=3)
 VD23 <- VD2
@@ -166,11 +174,11 @@ VD23@setList <- c(VD2@setList,VD3@setList)
 grid.newpage()
 pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-2,3),c(-2,2));grid.xaxis();grid.yaxis()
-PlotSetBoundaries(VD23)
 
-drawing <- VD23
-innerFaceName <- "1"
-.create.edge.joining.faces(drawing,"DarkMatter","1")
+cejf <- .create.edge.joining.faces(VD23,"DarkMatter","1")
+VD23 <- cejf$drawing
+PlotSetBoundaries(VD23)
+.PlotArcs(VD23)
 @
 \section{The TissueDrawing object}
 
@@ -237,57 +245,6 @@ PlotNodes(VD)
 \caption{Constructing TissueDrawing objects from scratch}
  \end{center}\end{figure}
 
-\subsection{Ellipses}
-Ellipses could be coped with specially by finding roots of quartics,
-but don't bother and just generate them as polygons
-<<dve>>=
-VE <- newTissueFromEllipse (f1=c(0,0),phi=pi/4,e=.5,a=0.5,Set=1)
-.validateDrawing(VE)
-
-@
-\begin{figure}[H]\begin{center}
-<<shoVE1,fig=TRUE>>=
-grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-2,2),c(-2,2))
-grid.xaxis()
-grid.yaxis()
-PlotFaces(VE)
-PlotSetBoundaries(VE,gp=gpar(lwd=2,col=c("red","blue","green")))
-PlotNodes(VE)
-@
- \end{center}\end{figure}
-
-<<dve4>>=
-	phi <- 0.8; dex <- 1.7;dey <- 2.5; a<- 7.6; e<- 0.9
-	x0 <- c( -0.9, -5.0)
-	VE <- list()
-	dx <- 0.2
-	VE[[1]] <- newTissueFromEllipse (x0+c(0,0),-phi ,e,-a,Set=1,dx=dx)
-	VE[[2]] <- newTissueFromEllipse (x0+c(dex,0),phi ,e,a,Set=2,dx=dx)
-	VE[[3]] <- newTissueFromEllipse (x0+c(-dey,dey),-phi ,e,-a,Set=3,dx=dx)
-	VE[[4]] <- newTissueFromEllipse (x0+c(dex+dey,dey),phi ,e,a,Set=4,dx=dx)
-
-	TM <- VE[[1]]
-	TM2 <- addSetToDrawing(TM,VE[[2]],set2Name=paste("Set",2,sep=""))
-	TM3 <- addSetToDrawing(TM2,VE[[3]],set2Name=paste("Set",3,sep=""))
-	TM4 <- addSetToDrawing(TM3,VE[[4]],set2Name=paste("Set",4,sep=""))
-.validateDrawing(TM4)
-@
-\begin{figure}[H]\begin{center}
-<<shoVE4,fig=TRUE>>=
-grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-10,10),c(-8,10))
-grid.xaxis()
-grid.yaxis()
-PlotFaces(TM4 )
-PlotSetBoundaries(TM4 ,gp=gpar(lwd=2,col=c("red","blue","green","yellow")))
-.PlotFaceNames.TissueDrawing (TM4)
-@
-
-\caption{Constructing TissueDrawing objects from scratch}
- \end{center}\end{figure}
-
-
 
 
 \section{Injecting points and edges}
@@ -304,20 +261,6 @@ VD4 <-  injectPoint(VD4,edgeName="p1|p2|1",newPoint=p5)
 .validateDrawing(VD4)
 VD4
 @
-
-\begin{figure}[H]\begin{center}
-<<shoVD4bz,fig=TRUE>>=
-grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-7,7),c(-5,10))
-grid.xaxis()
-grid.yaxis()
-
-PlotFaces(VD4)
-PlotSetBoundaries(VD4,gp=gpar(lwd=2,col=c("red","blue","green")))
-PlotNodes(VD4)
-@
-\caption{Injecting points}
- \end{center}\end{figure}
 
 Then we try injecting single edges
 <<defp1p4>>=
@@ -342,21 +285,6 @@ VD6 <- injectEdge(drawing=VD6,newEdgeList=list("p4|p5|4"=p4p5.line),set2Name="4"
 VD6
 @
 
-\begin{figure}[H]\begin{center}
-
-<<shoVD6b,fig=TRUE>>=
-grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
-makevp.eqsc(c(-7,7),c(-5,10))
-grid.xaxis()
-grid.yaxis()
-PlotFaces(VD6)
-PlotSetBoundaries(VD6,gp=gpar(lwd=2,col=c("red","blue","green","black")))
-.PlotFaceNames.TissueDrawing (VD6)
-PlotNodes(VD6)
-#.PlotArcs(VD,c("p1|p5|1","p2|p4|2"),arrow=arrow())
-@
- \end{center}\end{figure}
-And now injecting edges of multiple points
 
 <<elistm>>=
 VD8 <- VD6
@@ -503,6 +431,45 @@ PlotNodes(TN2b)
 shoar(TN2b)
 @
  \end{center}\end{figure}
+
+
+
+\subsection{Ellipses}
+Ellipses could be coped with specially by finding roots of quartics,
+but don't bother and just generate them as polygons
+<<dve>>=
+VE <- newTissueFromEllipse (f1=c(0,0),phi=pi/4,e=.5,a=0.5,Set=1)
+.validateDrawing(VE)
+
+@
+\begin{figure}[H]\begin{center}
+<<shoVE1,fig=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-2,2),c(-2,2))
+grid.xaxis()
+grid.yaxis()
+PlotFaces(VE)
+PlotSetBoundaries(VE,gp=gpar(lwd=2,col=c("red","blue","green")))
+PlotNodes(VE)
+@
+ \end{center}\end{figure}
+
+<<dve4>>=
+	phi <- 0.8; dex <- 1.7;dey <- 2.5; a<- 7.6; e<- 0.9
+	x0 <- c( -0.9, -5.0)
+	VE <- list()
+	dx <- 0.2
+	VE[[1]] <- newTissueFromEllipse (x0+c(0,0),-phi ,e,-a,Set=1,dx=dx)
+	VE[[2]] <- newTissueFromEllipse (x0+c(dex,0),phi ,e,a,Set=2,dx=dx)
+	VE[[3]] <- newTissueFromEllipse (x0+c(-dey,dey),-phi ,e,-a,Set=3,dx=dx)
+	VE[[4]] <- newTissueFromEllipse (x0+c(dex+dey,dey),phi ,e,a,Set=4,dx=dx)
+
+	TM <- VE[[1]]
+	TM2 <- addSetToDrawing(TM,VE[[2]],set2Name=paste("Set",2,sep=""))
+	TM3 <- addSetToDrawing(TM2,VE[[3]],set2Name=paste("Set",3,sep=""))
+	TM4 <- addSetToDrawing(TM3,VE[[4]],set2Name=paste("Set",4,sep=""))
+.validateDrawing(TM4)
+@
 
 
 
