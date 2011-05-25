@@ -1,9 +1,9 @@
 Package: Vennerable
 Title: Venn and Euler area-proportional diagrams
-Version: 2.0 
+Version: 2.1 
 Author: Jonathan Swinton
 Description: A package for drawing various species of Venn diagrams.
 Maintainer: Jonathan Swinton <jonathan@swintons.net>
 LazyLoad: yes
-Depends: graph, RBGL, grid, lattice, RColorBrewer, reshape, methods
+Depends: graph, RBGL, grid, lattice, RColorBrewer, reshape, methods, gtools, xtable
 License: GPL

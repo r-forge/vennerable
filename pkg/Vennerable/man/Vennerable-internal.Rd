@@ -142,8 +142,10 @@
 \alias{VisibleRange}
 \alias{zeropos}
 \alias{zerotheta}
+\alias{EulerClasses}
+\alias{Euler.from.Signature}
 \title{
-Internal functions for Vennerable, plus the ones I haven't documented yet
+Internal functions for Vennerable, plus some user-visible ones I haven't documented yet
 }
 \description{
 As well as a number of internal helper functions, Vennerable includes code for doing polygon-polygon clipping in some (buggy) generality which may be documented if there is demand.

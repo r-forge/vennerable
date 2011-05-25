@@ -12,7 +12,9 @@ EulerClasses <- function(numberOfSets) {
 	V <- Venn(numberOfSets=numberOfSets)
 	vs <- data.frame(Indicator(V))
 	vs$Signature <- apply(data.matrix(vs),1,paste,collapse="")
-	vs <- subset(vs,Signature!=dark.matter.signature(V))
+	#vs <- subset(vs,Signature!=dark.matter.signature(V)) # causes note in RCMD check
+	vs <- vs[vs$Signature!=dark.matter.signature(V),]
+	
 	E2 <- Euler.from.Signature (vs$Signature)
 	E2 <- E2[order(E2$ESignature),]
 
